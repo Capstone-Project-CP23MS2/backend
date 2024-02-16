@@ -28,5 +28,7 @@ public class ActivityDto {
     private Instant updatedAt;
     private Integer noOfMembers;
 
+    //custom only 3 fields
     private Set<CustomUserActivityDto> users = new HashSet<>();
+
 }
