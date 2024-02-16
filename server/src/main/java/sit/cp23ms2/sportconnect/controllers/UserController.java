@@ -7,7 +7,10 @@ import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity.CreateActivityDto;
 import sit.cp23ms2.sportconnect.dtos.user.CreateUserDto;
 import sit.cp23ms2.sportconnect.dtos.user.PageUserDto;
+import sit.cp23ms2.sportconnect.dtos.user.UpdateUserDto;
 import sit.cp23ms2.sportconnect.dtos.user.UserDto;
+import sit.cp23ms2.sportconnect.entities.User;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +57,11 @@ public class UserController {
     @PostMapping
     public UserDto createUser(@Valid @ModelAttribute CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
         return userService.create(newUser, result);
+    }
+
+    @PatchMapping("/{id}")
+    public UserDto update(@Valid @ModelAttribute UpdateUserDto updateUserDto, @PathVariable Integer id) throws ForbiddenException {
+        return userService.update(updateUserDto, id);
     }
 
     @GetMapping("/us")

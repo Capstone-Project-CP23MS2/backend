@@ -18,6 +18,7 @@ public class ActivityDto {
     private Integer hostUserId;
     //private Category categoryId;
     private Integer categoryId;
+    private String categoryName;
     private String title;
     private String description;
     private String place;
@@ -25,7 +26,7 @@ public class ActivityDto {
     private Integer duration;
     private Instant createdAt;
     private Instant updatedAt;
-    private Integer noOfMembers;
-    @JsonIgnore
-    private Set<User> users = new HashSet<>();
+    private Integer maxMemberAmount;
+
+    private Set<CustomUserActivityDto> users = new HashSet<>();
 }

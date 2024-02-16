@@ -1,13 +1,16 @@
-//package com.example.demo.tokens;
+//package sit.cp23ms2.sportconnect.tokens;
 //
-//import com.example.demo.repositories.UserRepository;
+//import com.auth0.jwt.JWT;
+//import com.auth0.jwt.interfaces.DecodedJWT;
 //import io.jsonwebtoken.*;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.security.core.userdetails.UserDetails;
 //import org.springframework.stereotype.Service;
+//import sit.cp23ms2.sportconnect.repositories.UserRepository;
 //
 //
+//import java.time.Instant;
 //import java.util.Date;
 //import java.util.HashMap;
 //import java.util.Map;
@@ -51,6 +54,23 @@
 //        Claims claim = extractAllClaims(token);
 //        return claim;
 //    }
+//
+//    public String getEmailFromToken(String token){
+//        DecodedJWT decodedJWT = JWT.decode(token);
+//        String email = decodedJWT.getClaim("email").toString();
+//        email = email.replace("\"", "");
+//        return email;
+//    }
+//
+//    public Date getExpirationFromToken(String token){
+//        DecodedJWT decodedJWT = JWT.decode(token);
+//        long secondExp = Long.parseLong(decodedJWT.getClaim("exp").toString());
+//        Instant expInstant = Instant.ofEpochMilli(secondExp * 1000);
+//        Date exp = Date.from(expInstant);
+//        System.out.println(exp);
+//        return exp;
+//    }
+//
 //    private Claims extractAllClaims(String token) {
 ////        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
 ////        Claims claims;
@@ -67,6 +87,13 @@
 //
 //    private Boolean isTokenExpired(String token) {
 //        return extractExpiration(token).before(new Date());
+//    }
+//
+//    public Boolean isTokenExpireOrNot(String token) {
+////        System.out.println("token exp date: " + getExpirationFromToken(token));
+////        System.out.println("actual date: " + new Date());
+////        System.out.println("is before: " + getExpirationFromToken(token).before(new Date()));
+//        return getExpirationFromToken(token).before(new Date());
 //    }
 //
 //    public String generateToken(UserDetails userDetails) {
@@ -86,24 +113,29 @@
 //    }
 //
 //    public Boolean validateToken(String token, UserDetails userDetails) {
-////        final String username = extractUsername(token);
-////        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-//        try {
-//            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-//            return true;
-//        } catch (SignatureException e) {
-//            e.printStackTrace();
-//        } catch (MalformedJwtException e) {
-//            e.printStackTrace();
-//        } catch (ExpiredJwtException e) {
-//            e.printStackTrace();
-//        } catch (UnsupportedJwtException e) {
-//            e.printStackTrace();
-//        } catch (IllegalArgumentException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return false;
+//        //final String username = extractUsername(token);
+//        final String email = getEmailFromToken(token);
+////        System.out.println(email);
+////        System.out.println(userDetails.getUsername());
+//       // System.out.println(email.equals(userDetails.getUsername()));
+//        //System.out.println(!isTokenExpireOrNot(token));
+//        return (email.equals(userDetails.getUsername()) && !isTokenExpireOrNot(token));
+////        try {
+////            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+////            return true;
+////        } catch (SignatureException e) {
+////            e.printStackTrace();
+////        } catch (MalformedJwtException e) {
+////            e.printStackTrace();
+////        } catch (ExpiredJwtException e) {
+////            e.printStackTrace();
+////        } catch (UnsupportedJwtException e) {
+////            e.printStackTrace();
+////        } catch (IllegalArgumentException e) {
+////            e.printStackTrace();
+////        }
+////
+////        return false;
 //    }
 //
 //    public String refreshToken(String token) {

@@ -6,6 +6,6 @@ public class ForbiddenException extends Exception{
     }
 
     public ForbiddenException(String message) {
-        super("Unauthorized: " + message);
+        super("Forbidden: " + message);
     }
 }

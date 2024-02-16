@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -35,9 +37,19 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     );
 
     @Query(
-            value = "SELECT * FROM \"activities\" WHERE activityId = ?1 ",nativeQuery = true
+            value = "SELECT * FROM \"activities\" WHERE " +
+                    "(LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)" +
+                    "AND (LOWER(\"place\") LIKE LOWER(concat('%', :place, '%')) OR LOWER(:place) IS NULL)",nativeQuery = true
     )
-    Activity findActivityById(Integer id);
+    List<Activity> findAllActivitiesNoCategoryFilterNoPage(
+            @Param("title") String title,
+            @Param("place") String place
+    );
+
+    @Query(
+            value = "SELECT * FROM \"activities\" WHERE \"activityId\" = ?1 ",nativeQuery = true
+    )
+    Optional<Activity> findActivityById(Integer id);
 
     public boolean existsByTitleAndActivityIdNot(String title, Integer id);
 

@@ -70,7 +70,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> forbidden(ForbiddenException e) {
         HttpStatus forbidden = HttpStatus.FORBIDDEN;
         ApiException apiException = new ApiException(
-                "FORBIDDEN",
+                e.getMessage(),
                 HttpStatus.FORBIDDEN,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );

@@ -1,7 +1,6 @@
-//package com.example.demo.tokens;
+//package sit.cp23ms2.sportconnect.tokens;
 //
-//import com.example.demo.exceptions.type.ApiNotFoundException;
-//import com.example.demo.repositories.UserRepository;
+//
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.authority.SimpleGrantedAuthority;
 //import org.springframework.security.core.userdetails.User;
@@ -9,6 +8,8 @@
 //import org.springframework.security.core.userdetails.UserDetailsService;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
 //import org.springframework.stereotype.Service;
+//import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
+//import sit.cp23ms2.sportconnect.repositories.UserRepository;
 //
 //
 //import java.util.HashSet;
@@ -21,12 +22,12 @@
 //    UserRepository jwtUserRepository;
 //
 //    @Override
-//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//        System.out.println("Email: " + email);
-//        if(jwtUserRepository.existsByUsername(email)){
-//            com.example.demo.entities.User jwtUser = jwtUserRepository.findByUsername(email);
-//            return new User(jwtUser.getUsername(), "test", getAuthority(jwtUser));
+//    public CustomUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+//        if(jwtUserRepository.existsByEmail(email)){
+//            sit.cp23ms2.sportconnect.entities.User jwtUser = jwtUserRepository.findByEmail(email);
+//            return new CustomUserDetails(jwtUser.getEmail(), "test", getAuthority(jwtUser), jwtUser.getUserId());
 //        } else {
+//            System.out.println("email does not exist");
 //            throw new ApiNotFoundException("Email does not exist");
 //        }
 //
@@ -37,10 +38,10 @@
 //
 //    }
 //
-//    private Set<SimpleGrantedAuthority> getAuthority(com.example.demo.entities.User user) {
+//    private Set<SimpleGrantedAuthority> getAuthority(sit.cp23ms2.sportconnect.entities.User user) {
 //        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 //        //authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
-//        authorities.add(new SimpleGrantedAuthority("ROLE_member"));
+//        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
 //        return authorities;
 //    }
 //

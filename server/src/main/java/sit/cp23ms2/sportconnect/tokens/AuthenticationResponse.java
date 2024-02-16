@@ -1,4 +1,4 @@
-//package com.example.demo.tokens;
+//package sit.cp23ms2.sportconnect.tokens;
 //
 //public class AuthenticationResponse {
 //    private String token;

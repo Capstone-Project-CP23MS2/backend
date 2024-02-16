@@ -44,7 +44,7 @@ CREATE TYPE role_user AS ENUM ('admin', 'user');
 CREATE TABLE IF NOT EXISTS public."user"
 (
     "userId" SERIAL PRIMARY KEY,
-    username character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    username character varying(40) COLLATE pg_catalog."default" NOT NULL,
 	email character varying(40),
 	"role" role_user,
     "profilePicture" text COLLATE pg_catalog."default",
@@ -89,6 +89,13 @@ CREATE TABLE IF NOT EXISTS public.categories
     description text
 );
 
+CREATE TABLE IF NOT EXISTS public."userInterests"
+(
+    "userId" serial NOT NULL,
+    "categoryId" serial NOT NULL,
+    PRIMARY KEY ("userId", "categoryId")
+);
+
 ALTER TABLE IF EXISTS public.activities
     ADD CONSTRAINT "hostId" FOREIGN KEY ("hostUserId")
     REFERENCES public."user" ("userId") MATCH SIMPLE
@@ -131,6 +138,21 @@ ALTER TABLE IF EXISTS public.request
     REFERENCES public.activities ("activityId") MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE CASCADE
+    NOT VALID;
+
+ALTER TABLE IF EXISTS public."userInterests"
+    ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
+    REFERENCES public."user" ("userId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public."userInterests"
+    ADD CONSTRAINT "categoryId" FOREIGN KEY ("categoryId")
+    REFERENCES public.categories ("categoryId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
     NOT VALID;
 
 END;
