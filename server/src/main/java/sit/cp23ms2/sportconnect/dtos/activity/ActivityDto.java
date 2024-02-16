@@ -26,7 +26,7 @@ public class ActivityDto {
     private Integer duration;
     private Instant createdAt;
     private Instant updatedAt;
-    private Integer maxMemberAmount;
+    private Integer noOfMembers;
 
     private Set<CustomUserActivityDto> users = new HashSet<>();
 }
