@@ -1,13 +1,15 @@
 package sit.cp23ms2.sportconnect.services;
 
-import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
-import sit.cp23ms2.sportconnect.dtos.activity.CreateActivityDto;
-import sit.cp23ms2.sportconnect.dtos.activity.PageActivityDto;
-import sit.cp23ms2.sportconnect.dtos.activity.UpdateActivityDto;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.ResponseEntity;
+
+import sit.cp23ms2.sportconnect.controllers.SearchTest;
+import sit.cp23ms2.sportconnect.dtos.activity.*;
 import sit.cp23ms2.sportconnect.entities.Activity;
 import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
 import sit.cp23ms2.sportconnect.entities.Category;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.ActivityParticipantRepository;
 import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
 import sit.cp23ms2.sportconnect.repositories.CategoryRepository;
@@ -24,7 +26,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
+
+
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -37,6 +43,8 @@ public class ActivityService {
     private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+//    @Autowired
+//    private AuthenticationUtil authenticationUtil;
 
     //nameError
     final private FieldError titleErrorObj = new FieldError("createActivityDto",
@@ -50,17 +58,39 @@ public class ActivityService {
             listActivities = repository.findAllActivities(pageRequest, categoryIds, title, place); //ได้เป็น Pageable ของ User\
         } else {
             listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title, place);
+            System.out.println(title + place);
         }
-        PageActivityDto pageActivityDto = modelMapper.map(listActivities, PageActivityDto.class); //map ใส่ PageUserDto
+        Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
+            //set category name in dto
+            ActivityDto activityDto = modelMapper.map(activity, ActivityDto.class);
+            activityDto.setCategoryName(activity.getCategoryId().getName());
+            //set users_activities in dto with custom field
+            Set<CustomUserActivityDto> userSets = activity.getUsers().stream().map(user -> {
+                CustomUserActivityDto userSet = modelMapper.map(user, CustomUserActivityDto.class); // เอา user ที่มีทุก field มา map เข้าไปแค่ 3 fields ทีละ user
+                return userSet;
+            }).collect(Collectors.toSet());
+            activityDto.setUsers(userSets);
+            return activityDto;
+        });
+
+        PageActivityDto pageActivityDto = modelMapper.map(listActivitiesCustomDto, PageActivityDto.class); //map ใส่ PageUserDto
         return  pageActivityDto;
     }
 
-    public Activity getById(Integer id) {
-        return repository.findById(id).orElseThrow(() -> new ApiNotFoundException("Activity not found!"));
+    public List<Activity> getTest(SearchTest searchTest) {
+        return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle(), searchTest.getPlace());
+//        return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle(), searchTest.getPlace());
     }
 
-    public ActivityDto create(CreateActivityDto newActivity, BindingResult result) throws MethodArgumentNotValidException {
+    public Activity getById(Integer id) {
+        return //repository.findById(id).orElseThrow(() -> new ApiNotFoundException("Activity not found!"));
+                repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    public ActivityDto create(CreateActivityDto newActivity, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
         //Error validation
+//        if(!isCurrentUserWillBeHostActivity(newActivity))
+//            throw new ForbiddenException("You're not allowed to create other's activity");
         if(repository.existsByTitle(newActivity.getTitle())) {
             result.addError(titleErrorObj);
         }
@@ -69,7 +99,7 @@ public class ActivityService {
         Activity activity = modelMapper.map(newActivity, Activity.class);
         //save Activity to database
         Activity createdActivity = repository.saveAndFlush(activity);
-        //create participant (because hoseUser is also participant)
+        //create participant (because hostUser is also participant)
         ActivityParticipant activityParticipant = new ActivityParticipant();
         activityParticipantRepository.insertWithEnum(createdActivity.getHostUser().getUserId()
                 , createdActivity.getActivityId(), "ready", createdActivity.getCreatedAt());
@@ -77,8 +107,11 @@ public class ActivityService {
         return modelMapper.map(createdActivity, ActivityDto.class);
     }
 
-    public ActivityDto update(UpdateActivityDto updateActivity, Integer id, BindingResult result) throws MethodArgumentNotValidException {
+    public ActivityDto update(UpdateActivityDto updateActivity, Integer id, BindingResult result) throws MethodArgumentNotValidException,
+            ForbiddenException {
         Activity activity = getById(id);
+//        if(!isCurrentUserHost(activity))
+//            throw new ForbiddenException("You're not allowed to edit this activity");
         if(repository.existsByTitleAndActivityIdNot(updateActivity.getTitle(), id)) { //Check duplicate title
             result.addError(titleErrorObj);
         }
@@ -108,10 +141,22 @@ public class ActivityService {
         return existingActivity;
     }
 
-    public void delete(Integer id) {
-        repository.findById(id).orElseThrow(()->
+    public void delete(Integer id) throws ForbiddenException {
+        Activity activity = repository.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         id + "does not exist !"));
+//        if(!isCurrentUserHost(activity))
+//            throw new ForbiddenException("You're not allowed to delete this activity");
         repository.deleteById(id);
     }
+
+//    private boolean isCurrentUserHost(Activity activity) {
+//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+//        return activity.getHostUser().getUserId() == currentAuthId;
+//    }
+//
+//    private boolean isCurrentUserWillBeHostActivity(CreateActivityDto createActivityDto) {
+//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+//        return createActivityDto.getHostUserId() == currentAuthId;
+//    }
 }

@@ -48,7 +48,7 @@ public class User implements Serializable {
     private String profilePicture;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender", nullable = true)
     @Type(type = "enum_type")
     private Gender gender;
 
@@ -80,6 +80,17 @@ public class User implements Serializable {
             ,joinColumns = {@JoinColumn(name = "userId")}
             ,inverseJoinColumns = {@JoinColumn(name = "activityId")})
     private Set<Activity> userActivities = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "userInterests"
+            ,joinColumns = {@JoinColumn(name = "userId")}
+            ,inverseJoinColumns = {@JoinColumn(name = "categoryId")})
+    private Set<Category> userInterests = new HashSet<>();
 
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "hostUser")

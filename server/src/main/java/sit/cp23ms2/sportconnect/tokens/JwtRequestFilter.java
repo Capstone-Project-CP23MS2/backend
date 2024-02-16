@@ -1,8 +1,8 @@
-//package com.example.demo.tokens;
+//package sit.cp23ms2.sportconnect.tokens;
 //
 //import com.auth0.jwt.JWT;
 //import com.auth0.jwt.interfaces.DecodedJWT;
-//import com.example.demo.repositories.UserRepository;
+//
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 //import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,6 +10,9 @@
 //import org.springframework.stereotype.Component;
 //import org.springframework.util.StringUtils;
 //import org.springframework.web.filter.OncePerRequestFilter;
+//import sit.cp23ms2.sportconnect.entities.User;
+//import sit.cp23ms2.sportconnect.enums.Role;
+//import sit.cp23ms2.sportconnect.repositories.UserRepository;
 //
 //import javax.servlet.FilterChain;
 //import javax.servlet.ServletException;
@@ -43,21 +46,28 @@
 ////        }
 //        try {
 //            if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-//                System.out.println(bearerToken);
 //                jwtToken = bearerToken.substring(7, bearerToken.length());
 //                DecodedJWT jwt = JWT.decode(jwtToken);
-//                System.out.println(jwt.getClaims());
-//                //Normal App Token
-//                System.out.println("Jwt App Token");
-//                username = jwtUtil.extractUsername(jwtToken);
+//                username = jwtUtil.getEmailFromToken(jwtToken);
+//                //create if does not exist
+//                if(!userRepository.existsByEmail(username)) {
+//                    User user = new User();
+//                    user.setEmail(username);
+//                    user.setUsername(username);
+//                    user.setRole(Role.valueOf("user"));
+//                    userRepository.saveAndFlush(user);
+//                }
 //                if (SecurityContextHolder.getContext().getAuthentication() == null) {
 //                    System.out.println("loading");
-//                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+//                    CustomUserDetails userDetails = userDetailsService.loadUserByUsername(username);
 //                    if (jwtUtil.validateToken(jwtToken, userDetails)) {
+//                        System.out.println("validated");
 //                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 //                        authenticationToken.setDetails(request);
 //                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 //                    }
+//                } else {
+//                    System.out.println("none");
 //                }
 //            }
 //        } catch (Exception e) {

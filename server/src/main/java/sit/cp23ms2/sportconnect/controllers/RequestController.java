@@ -11,6 +11,8 @@ import sit.cp23ms2.sportconnect.dtos.activity.PageActivityDto;
 import sit.cp23ms2.sportconnect.dtos.request.CreateRequestDto;
 import sit.cp23ms2.sportconnect.dtos.request.PageRequestDto;
 import sit.cp23ms2.sportconnect.dtos.request.RequestDto;
+import sit.cp23ms2.sportconnect.dtos.request.UpdateRequestDto;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.RequestService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -38,12 +40,19 @@ public class RequestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createRequest(@Valid @ModelAttribute CreateRequestDto newRequest, BindingResult result) throws MethodArgumentNotValidException {
+    public ResponseEntity<?> createRequest(@Valid @ModelAttribute CreateRequestDto newRequest, BindingResult result)
+            throws MethodArgumentNotValidException, ForbiddenException {
         return requestService.createRequest(newRequest, result);
     }
 
+    @PatchMapping("/{activityId}_{userId}")
+    public RequestDto updateRequest(@Valid @RequestBody UpdateRequestDto updateRequestDto,
+                              @PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException {
+        return requestService.update(updateRequestDto, activityId, userId);
+    }
+
     @DeleteMapping("/{activityId}_{userId}")
-    public void deleteRequest(@PathVariable Integer activityId, @PathVariable Integer userId) {
+    public void deleteRequest(@PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException {
         requestService.delete(activityId, userId);
     }
 }

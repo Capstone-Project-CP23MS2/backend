@@ -6,11 +6,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import sit.cp23ms2.sportconnect.dtos.activity_participants.ActivityParticipantsDto;
 import sit.cp23ms2.sportconnect.dtos.activity_participants.CreateActivityParticipantDto;
 import sit.cp23ms2.sportconnect.dtos.activity_participants.PageActivityParticipantDto;
+import sit.cp23ms2.sportconnect.dtos.activity_participants.UpdateActivityParticipantDto;
 import sit.cp23ms2.sportconnect.dtos.request.CreateRequestDto;
 import sit.cp23ms2.sportconnect.dtos.request.PageRequestDto;
 import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.ActivityParticipantsService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -36,12 +39,19 @@ public class ActivityParticipantsController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createActivityParticipant(@Valid @ModelAttribute CreateActivityParticipantDto newActivityParticipant, BindingResult result) throws MethodArgumentNotValidException {
+    public ResponseEntity<?> createActivityParticipant(@Valid @ModelAttribute CreateActivityParticipantDto newActivityParticipant, BindingResult result)
+            throws MethodArgumentNotValidException, ForbiddenException {
         return activityParticipantsService.createActivityParticipants(newActivityParticipant, result);
     }
 
+    @PatchMapping("/{activityId}_{userId}")
+    public ActivityParticipantsDto update(@Valid @RequestBody UpdateActivityParticipantDto updateActivityParticipantDto,
+                                          @PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException {
+        return activityParticipantsService.update(updateActivityParticipantDto, activityId, userId);
+    }
+
     @DeleteMapping("/{activityId}_{userId}")
-    public void deleteRequest(@PathVariable Integer activityId, @PathVariable Integer userId) {
+    public void deleteRequest(@PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException {
         activityParticipantsService.delete(activityId, userId);
     }
 }
