@@ -35,9 +35,9 @@ public class UserController {
     public UserService userService;
     @Autowired
     ModelMapper modelMapper;
-    @Value("${line.notify.client}")
+    //@Value("${line.notify.client}")
     private String clientLine;
-    @Value("${line.notify.secret}")
+    //@Value("${line.notify.secret}")
     private String secretLine;
 
     @GetMapping
