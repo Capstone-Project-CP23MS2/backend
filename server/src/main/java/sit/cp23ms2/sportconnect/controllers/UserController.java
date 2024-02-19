@@ -55,6 +55,11 @@ public class UserController {
         return modelMapper.map(userService.getById(id), UserDto.class);
     }
 
+    @GetMapping("/getByEmail/{email}")
+    public UserDto getUserByEmail(@PathVariable String email) {
+        return modelMapper.map(userService.getByEmail(email), UserDto.class) ;
+    }
+
     @PostMapping
     public UserDto createUser(@Valid @ModelAttribute CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
         return userService.create(newUser, result);
