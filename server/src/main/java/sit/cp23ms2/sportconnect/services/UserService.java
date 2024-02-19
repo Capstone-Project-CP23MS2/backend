@@ -47,7 +47,7 @@ public class UserService {
 
         if(email != null && !email.isEmpty()) {
             email = email.replaceAll("\\s", "");
-            
+
             if(!repository.existsByEmail(email)) {
                 throw new ApiNotFoundException("Not found this user by email: " + email);
             }
@@ -59,6 +59,12 @@ public class UserService {
 
     public User getById(Integer id) {
         return repository.findById(id).orElseThrow(() -> new ApiNotFoundException("User not found!"));
+    }
+
+    public User getByEmail(String email) {
+        if(email != null && !email.isEmpty())
+            email = email.replaceAll("\\s", "");
+        return repository.findByEmail(email).orElseThrow(() -> new ApiNotFoundException("User not found!"));
     }
 
     public UserDto create(CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 
 public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(
@@ -21,7 +23,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     public boolean existsByEmail(String email);
 
+
     public User findByUsername(String username);
 
-    public User findByEmail(String email);
+    public Optional<User> findByEmail(String email);
 }
