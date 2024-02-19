@@ -41,10 +41,18 @@ public class UserService {
     final private FieldError nameErrorObj = new FieldError("createUserDto",
             "username", "Username already used");
 
-    public PageUserDto getUser(int pageNum, int pageSize, String sortBy) {
+    public PageUserDto getUser(int pageNum, int pageSize, String sortBy, String email) throws ApiNotFoundException {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize, sort);
-        Page<User> listUsers = repository.findAllUsers(pageRequest); //ได้เป็น Pageable ของ User
+
+        if(email != null && !email.isEmpty()) {
+            email = email.replaceAll("\\s", "");
+            
+            if(!repository.existsByEmail(email)) {
+                throw new ApiNotFoundException("Not found this user by email: " + email);
+            }
+        }
+        Page<User> listUsers = repository.findAllUsers(pageRequest, email); //ได้เป็น Pageable ของ User
         PageUserDto pageUserDto = modelMapper.map(listUsers, PageUserDto.class); //map ใส่ PageUserDto
         return  pageUserDto;
     }
