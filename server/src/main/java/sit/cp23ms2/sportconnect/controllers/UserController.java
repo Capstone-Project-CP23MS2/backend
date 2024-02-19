@@ -43,10 +43,11 @@ public class UserController {
     @GetMapping
     public PageUserDto getUsers(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int pageSize,
-                                @RequestParam(defaultValue = "username") String sortBy, HttpServletResponse response) throws IOException {
+                                @RequestParam(defaultValue = "username") String sortBy,
+                                @RequestParam(required = false) String email) throws IOException {
         //response.sendRedirect("https://google.com");
 
-        return userService.getUser(page, pageSize, sortBy);
+        return userService.getUser(page, pageSize, sortBy, email);
     }
 
     @GetMapping("/{id}")
@@ -66,9 +67,10 @@ public class UserController {
 
     @GetMapping("/us")
     public PageUserDto getUser(@RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "10") int pageSize,
-                                @RequestParam(defaultValue = "username") String sortBy) {
-        return userService.getUser(page, pageSize, sortBy);
+                               @RequestParam(defaultValue = "10") int pageSize,
+                               @RequestParam(defaultValue = "username") String sortBy,
+                               @RequestParam(required = false) String email) {
+        return userService.getUser(page, pageSize, sortBy, email);
     }
 
     @PostMapping("/test")
