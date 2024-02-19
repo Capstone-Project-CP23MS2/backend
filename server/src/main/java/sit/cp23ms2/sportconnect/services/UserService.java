@@ -25,7 +25,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 
 @Service
@@ -34,8 +37,8 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepository repository;
-//    @Autowired
-//    private AuthenticationUtil authenticationUtil;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     //nameError
     final private FieldError nameErrorObj = new FieldError("createUserDto",
@@ -80,17 +83,18 @@ public class UserService {
         return modelMapper.map(createdUser, UserDto.class);
     }
 
-    public UserDto update(UpdateUserDto updateUserDto, Integer id) throws ForbiddenException {
+    public UserDto update(UpdateUserDto updateUserDto, Integer id) throws ForbiddenException, ParseException {
         User user = repository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "User " + id + " does not exist !"));
-//        if(!isCurrentUserHost(user))
-//            throw new ForbiddenException("You're not allowed to edit this user");
+        if(!isCurrentUserHost(user))
+            throw new ForbiddenException("You're not allowed to edit this user");
         User updatedUser = mapUser(user, updateUserDto);
         return modelMapper.map(repository.saveAndFlush(updatedUser), UserDto.class);
     }
 
-    private User mapUser(User existingUser, UpdateUserDto updateUserDto) {
+    private User mapUser(User existingUser, UpdateUserDto updateUserDto) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         if(updateUserDto.getUsername() != null && !updateUserDto.getUsername().trim().equals("")) {
             existingUser.setUsername(updateUserDto.getUsername());
         }
@@ -98,7 +102,7 @@ public class UserService {
             existingUser.setGender(Gender.valueOf(updateUserDto.getGender()));
         }
         if(updateUserDto.getDateOfBirth() != null) {
-            existingUser.setDateOfBirth(updateUserDto.getDateOfBirth());
+            existingUser.setDateOfBirth(dateFormat.parse(updateUserDto.getDateOfBirth()));
         }
         if(updateUserDto.getPhoneNumber() != null) {
             existingUser.setPhoneNumber(updateUserDto.getPhoneNumber());
@@ -109,8 +113,20 @@ public class UserService {
         return existingUser;
     }
 
-//    private boolean isCurrentUserHost(User user) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        return user.getUserId() == currentAuthId;
-//    }
+    public void delete(Integer id) throws ApiNotFoundException {
+        repository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User " + id + " does not exist !"));
+        repository.deleteById(id);
+    }
+
+    private boolean isCurrentUserHost(User user) {
+
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return user.getUserId() == currentAuthId;
+        }
+    }
 }

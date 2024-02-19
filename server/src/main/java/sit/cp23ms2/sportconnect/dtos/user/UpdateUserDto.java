@@ -26,7 +26,7 @@ public class UpdateUserDto {
     @ValueOfEnum(enumClass = Gender.class)
     private String gender;
 
-    private Date dateOfBirth;
+    private String dateOfBirth;
 
     @Size(max = 10, message = "size must be within 10")
     private String phoneNumber;

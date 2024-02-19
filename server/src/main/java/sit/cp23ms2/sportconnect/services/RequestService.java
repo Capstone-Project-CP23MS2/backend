@@ -22,6 +22,7 @@ import sit.cp23ms2.sportconnect.repositories.ActivityParticipantRepository;
 import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
 import sit.cp23ms2.sportconnect.repositories.RequestRepository;
 import sit.cp23ms2.sportconnect.repositories.UserRepository;
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
 @Service
@@ -36,8 +37,8 @@ public class RequestService {
     ActivityRepository activityRepository;
     @Autowired
     UserRepository userRepository;
-//    @Autowired
-//    private AuthenticationUtil authenticationUtil;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     public PageRequestDto getRequest(int pageNum, int pageSize, Integer activityId, Integer userId) {
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
@@ -65,8 +66,8 @@ public class RequestService {
             throws MethodArgumentNotValidException, ApiNotFoundException, ForbiddenException {
         boolean isThereActivity = activityRepository.existsById(newRequest.getActivityId());
         boolean isThereUser = userRepository.existsById(newRequest.getUserId());
-//        if(!isCurrentUserWillBeOwnRequest(newRequest))
-//            throw new ForbiddenException("You're not allowed to create other's request");
+        if(!isCurrentUserWillBeOwnRequest(newRequest))
+            throw new ForbiddenException("You're not allowed to create other's request");
         if(!isThereActivity)
             throw new ApiNotFoundException("Activity not found!");
         if(!isThereUser)
@@ -87,8 +88,8 @@ public class RequestService {
         Request existingRequest = repository.findByActivityActivityIdAndUser_UserId(activityId, userId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Request of Activity ID: " + activityId + " and User ID: " + userId + "does not exist !"));
-//        if(!isCurrentUserHost(existingRequest))
-//            throw new ForbiddenException("You're not allowed to edit this request");
+        if(!isCurrentUserHost(existingRequest))
+            throw new ForbiddenException("You're not allowed to edit this request");
         Request updatedRequest = mapRequest(existingRequest, updateRequest);
         return modelMapper.map(repository.saveAndFlush(updatedRequest), RequestDto.class);
     }
@@ -104,23 +105,33 @@ public class RequestService {
         Request request = repository.findByActivityActivityIdAndUser_UserId(activityId, userId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Request of Activity ID: " + activityId + " and User ID: " + userId + "does not exist !"));
-//        if(!isCurrentUserHost(request))
-//            throw new ForbiddenException("You're not allowed to delete this request");
+        if(!isCurrentUserHost(request))
+            throw new ForbiddenException("You're not allowed to delete this request");
         repository.deleteByActivity_ActivityIdAndUser_UserId(activityId, userId);
     }
 
-//    private boolean isCurrentUserHost(Request request) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        boolean isCurrentAuthOwnRequest = request.getUser().getUserId() == currentAuthId;
-//        boolean isCurrentAuthOwnThisActivityOfParticipant = request.getActivity().getHostUser().getUserId() == currentAuthId;
-//        return isCurrentAuthOwnRequest || isCurrentAuthOwnThisActivityOfParticipant;
-//        //System.out.println("Own of this activity: " + isCurrentAuthOwnThisActivityOfParticipant);
-//        //System.out.println(isCurrentAuthOwnRequest || isCurrentAuthOwnThisActivityOfParticipant);
-//        //System.out.println("Own request: " + isCurrentAuthOwnRequest);
-//    }
-//
-//    private boolean isCurrentUserWillBeOwnRequest(CreateRequestDto createRequestDto) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        return createRequestDto.getUserId() == currentAuthId;
-//    }
+    private boolean isCurrentUserHost(Request request) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            boolean isCurrentAuthOwnRequest = request.getUser().getUserId() == currentAuthId;
+            boolean isCurrentAuthOwnThisActivityOfParticipant = request.getActivity().getHostUser().getUserId() == currentAuthId;
+            return isCurrentAuthOwnRequest || isCurrentAuthOwnThisActivityOfParticipant;
+        }
+
+        //System.out.println("Own of this activity: " + isCurrentAuthOwnThisActivityOfParticipant);
+        //System.out.println(isCurrentAuthOwnRequest || isCurrentAuthOwnThisActivityOfParticipant);
+        //System.out.println("Own request: " + isCurrentAuthOwnRequest);
+    }
+
+    private boolean isCurrentUserWillBeOwnRequest(CreateRequestDto createRequestDto) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return createRequestDto.getUserId() == currentAuthId;
+        }
+
+    }
 }
