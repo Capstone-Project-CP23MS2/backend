@@ -44,7 +44,10 @@ public class UserService {
     public PageUserDto getUser(int pageNum, int pageSize, String sortBy, String email) throws ApiNotFoundException {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize, sort);
+
         if(email != null && !email.isEmpty()) {
+            email = email.replaceAll("\\s", "");
+            
             if(!repository.existsByEmail(email)) {
                 throw new ApiNotFoundException("Not found this user by email: " + email);
             }
