@@ -45,8 +45,8 @@ public class CreateUserDto {
     @ValueOfEnum(enumClass = Gender.class)
     private String gender;
 
-    @NotBlank(message = "must not be null or blank")
-    private Date dateOfBirth;
+
+    private String dateOfBirth;
 
     @NotBlank(message = "must not be null or blank")
     @Size(max = 10, message = "size must be within 10")
