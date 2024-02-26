@@ -71,6 +71,17 @@ public class UserController {
         return userService.update(updateUserDto, id);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {
+        userService.delete(id);
+    }
+
+    @DeleteMapping("/deleteByEmail/{email}")
+    public void deleteByEmail(@PathVariable String email) {
+        userService.deleteByEmail(email);
+    }
+
+    //TEST
     @GetMapping("/us")
     public PageUserDto getUser(@RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int pageSize,

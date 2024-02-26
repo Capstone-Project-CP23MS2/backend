@@ -32,11 +32,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     UserRepository userRepository;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authorizationHeader =  request.getHeader("auth");
+        final String authorizationHeader =  request.getHeader("Authorization");
 
         String jwtToken = null;
         String username = null;
-        String bearerToken = request.getHeader("auth");
+        String bearerToken = request.getHeader("Authorization");
         //Cookie refreshCookie = WebUtils.getCookie(request, "refreshToken");
         //System.out.println("cookie: " + refreshCookie);
         String refreshToken = "";

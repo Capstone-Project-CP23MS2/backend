@@ -43,6 +43,8 @@ public class UserService {
     //nameError
     final private FieldError nameErrorObj = new FieldError("createUserDto",
             "username", "Username already used");
+    final private FieldError emailErrorObj = new FieldError("createUserDto",
+            "email", "Email already used");
 
     public PageUserDto getUser(int pageNum, int pageSize, String sortBy, String email) throws ApiNotFoundException {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
@@ -74,6 +76,9 @@ public class UserService {
         //Error validation
         if(repository.existsByUsername(newUser.getUsername())) {
             result.addError(nameErrorObj);
+        }
+        if(repository.existsByEmail(newUser.getEmail())) {
+            result.addError(emailErrorObj);
         }
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
 
@@ -118,6 +123,13 @@ public class UserService {
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "User " + id + " does not exist !"));
         repository.deleteById(id);
+    }
+
+    public void deleteByEmail(String email) throws ApiNotFoundException {
+        repository.findByEmail(email).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User " + email + " does not exist !"));
+        repository.deleteByEmail(email);
     }
 
     private boolean isCurrentUserHost(User user) {

@@ -51,7 +51,10 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(this.unauthorizedHandler)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/users/{id}/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/users/{id}/**")
+                .permitAll()
+                .antMatchers(HttpMethod.POST, "/api/users")
+                .permitAll()
                 .anyRequest().authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         security.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
