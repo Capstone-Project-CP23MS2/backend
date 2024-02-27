@@ -26,10 +26,10 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          AuthenticationException authException) throws IOException, ServletException {
 //        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         final String expired = (String) request.getAttribute("expired");
-        System.out.println(request.getHeader("auth"));
+        System.out.println(request.getHeader("Authorization"));
         //System.out.println(response);
         System.out.println("expired: " + expired);
-        String authHeader = request.getHeader("auth");
+        String authHeader = request.getHeader("Authorization");
 //        if(authHeader != null && !authHeader.isEmpty()) {
 //            if(jwtUtil.isTokenExpireOrNot(authHeader.substring(7))) {
 //                response.setContentType("application/json");
