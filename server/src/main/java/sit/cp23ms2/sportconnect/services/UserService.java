@@ -25,7 +25,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 
 @Service
@@ -34,12 +37,14 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepository repository;
-//    @Autowired
-//    private AuthenticationUtil authenticationUtil;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     //nameError
     final private FieldError nameErrorObj = new FieldError("createUserDto",
             "username", "Username already used");
+    final private FieldError emailErrorObj = new FieldError("createUserDto",
+            "email", "Email already used");
 
     public PageUserDto getUser(int pageNum, int pageSize, String sortBy, String email) throws ApiNotFoundException {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
@@ -58,19 +63,23 @@ public class UserService {
     }
 
     public User getById(Integer id) {
-        return repository.findById(id).orElseThrow(() -> new ApiNotFoundException("User not found!"));
+        return repository.findById(id).orElseThrow(() -> new ApiNotFoundException("User " + id + " not found!"));
     }
 
     public User getByEmail(String email) {
         if(email != null && !email.isEmpty())
             email = email.replaceAll("\\s", "");
-        return repository.findByEmail(email).orElseThrow(() -> new ApiNotFoundException("User not found!"));
+        String finalEmail = email;
+        return repository.findByEmail(email).orElseThrow(() -> new ApiNotFoundException("User " + finalEmail + " not found!"));
     }
 
     public UserDto create(CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
         //Error validation
         if(repository.existsByUsername(newUser.getUsername())) {
             result.addError(nameErrorObj);
+        }
+        if(repository.existsByEmail(newUser.getEmail())) {
+            result.addError(emailErrorObj);
         }
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
 
@@ -80,17 +89,18 @@ public class UserService {
         return modelMapper.map(createdUser, UserDto.class);
     }
 
-    public UserDto update(UpdateUserDto updateUserDto, Integer id) throws ForbiddenException {
+    public UserDto update(UpdateUserDto updateUserDto, Integer id) throws ForbiddenException, ParseException {
         User user = repository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "User " + id + " does not exist !"));
-//        if(!isCurrentUserHost(user))
-//            throw new ForbiddenException("You're not allowed to edit this user");
+        if(!isCurrentUserHost(user))
+            throw new ForbiddenException("You're not allowed to edit this user");
         User updatedUser = mapUser(user, updateUserDto);
         return modelMapper.map(repository.saveAndFlush(updatedUser), UserDto.class);
     }
 
-    private User mapUser(User existingUser, UpdateUserDto updateUserDto) {
+    private User mapUser(User existingUser, UpdateUserDto updateUserDto) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         if(updateUserDto.getUsername() != null && !updateUserDto.getUsername().trim().equals("")) {
             existingUser.setUsername(updateUserDto.getUsername());
         }
@@ -98,7 +108,7 @@ public class UserService {
             existingUser.setGender(Gender.valueOf(updateUserDto.getGender()));
         }
         if(updateUserDto.getDateOfBirth() != null) {
-            existingUser.setDateOfBirth(updateUserDto.getDateOfBirth());
+            existingUser.setDateOfBirth(dateFormat.parse(updateUserDto.getDateOfBirth()));
         }
         if(updateUserDto.getPhoneNumber() != null) {
             existingUser.setPhoneNumber(updateUserDto.getPhoneNumber());
@@ -109,8 +119,27 @@ public class UserService {
         return existingUser;
     }
 
-//    private boolean isCurrentUserHost(User user) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        return user.getUserId() == currentAuthId;
-//    }
+    public void delete(Integer id) throws ApiNotFoundException {
+        repository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User " + id + " does not exist !"));
+        repository.deleteById(id);
+    }
+
+    public void deleteByEmail(String email) throws ApiNotFoundException {
+        repository.findByEmail(email).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User " + email + " does not exist !"));
+        repository.deleteByEmail(email);
+    }
+
+    private boolean isCurrentUserHost(User user) {
+
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return user.getUserId() == currentAuthId;
+        }
+    }
 }

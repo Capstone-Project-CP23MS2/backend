@@ -23,6 +23,7 @@ import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.ActivityParticipantRepository;
 import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
 import sit.cp23ms2.sportconnect.repositories.UserRepository;
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
 @Service
@@ -35,8 +36,8 @@ public class ActivityParticipantsService {
     ActivityRepository activityRepository;
     @Autowired
     UserRepository userRepository;
-//    @Autowired
-//    private AuthenticationUtil authenticationUtil;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     public PageActivityParticipantDto getActivityParticipants(int pageNum, int pageSize, Integer activityId, Integer userId) {
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
@@ -64,8 +65,8 @@ public class ActivityParticipantsService {
             throws MethodArgumentNotValidException, ApiNotFoundException, ForbiddenException {
         boolean isThereActivity = activityRepository.existsById(newParticipant.getActivityId());
         boolean isThereUser = userRepository.existsById(newParticipant.getUserId());
-//        if(!isCurrentUserHostTheActivity(newParticipant))
-//            throw new ForbiddenException("You're not allowed to create other's participant if you're not the host");
+        if(!isCurrentUserHostTheActivity(newParticipant))
+            throw new ForbiddenException("You're not allowed to create other's participant if you're not the host");
         if(!isThereActivity)
             throw new ApiNotFoundException("Activity not found!");
         if(!isThereUser)
@@ -85,8 +86,8 @@ public class ActivityParticipantsService {
         ActivityParticipant activityParticipant = repository.findByActivityActivityIdAndUser_UserId(activityId, userId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Participating of Activity ID: " + activityId + " and User ID: " + userId + "does not exist !"));
-//        if(!isCurrentUserHost(activityParticipant))
-//            throw new ForbiddenException("You're not allowed to edit this participant");
+        if(!isCurrentUserHost(activityParticipant))
+            throw new ForbiddenException("You're not allowed to edit this participant");
         ActivityParticipant updated = mapActivityParticipant(activityParticipant, updateActivityParticipant);
         return modelMapper.map(repository.saveAndFlush(updated), ActivityParticipantsDto.class);
     }
@@ -102,26 +103,35 @@ public class ActivityParticipantsService {
         ActivityParticipant activityParticipant = repository.findByActivityActivityIdAndUser_UserId(activityId, userId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Participating of Activity ID: " + activityId + " and User ID: " + userId + "does not exist !"));
-//        if(!isCurrentUserHost(activityParticipant))
-//            throw new ForbiddenException("You're not allowed to delete this participant");
+        if(!isCurrentUserHost(activityParticipant))
+            throw new ForbiddenException("You're not allowed to delete this participant");
         repository.deleteByActivity_ActivityIdAndUser_UserId(activityId, userId);
     }
 
-//    private boolean isCurrentUserHost(ActivityParticipant activityParticipant) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        boolean isCurrentAuthOwnThisParticipant = activityParticipant.getUser().getUserId() == currentAuthId;
-//        boolean isCurrentAuthOwnThisActivityOfParticipant = activityParticipant.getActivity().getHostUser().getUserId() == currentAuthId;
-//        return isCurrentAuthOwnThisParticipant || isCurrentAuthOwnThisActivityOfParticipant;
-//        //System.out.println("Own participant: " + isCurrentAuthOwnThisParticipant);
-//        //System.out.println("Own of this activity: " + isCurrentAuthOwnThisActivityOfParticipant);
-//        //System.out.println(isCurrentAuthOwnThisParticipant || isCurrentAuthOwnThisActivityOfParticipant);
-//    }
-//
-//    private boolean isCurrentUserHostTheActivity(CreateActivityParticipantDto createActivityParticipantDto) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        Activity activity = activityRepository.findActivityById(createActivityParticipantDto.getActivityId()).orElseThrow(() ->
-//                new ResponseStatusException(HttpStatus.NOT_FOUND,
-//                        "Activity ID: " + createActivityParticipantDto.getActivityId() + " Not Found"));
-//        return activity.getHostUser().getUserId() == currentAuthId;
-//    }
+    private boolean isCurrentUserHost(ActivityParticipant activityParticipant) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            boolean isCurrentAuthOwnThisParticipant = activityParticipant.getUser().getUserId() == currentAuthId;
+            boolean isCurrentAuthOwnThisActivityOfParticipant = activityParticipant.getActivity().getHostUser().getUserId() == currentAuthId;
+            return isCurrentAuthOwnThisParticipant || isCurrentAuthOwnThisActivityOfParticipant;
+        }
+
+        //System.out.println("Own participant: " + isCurrentAuthOwnThisParticipant);
+        //System.out.println("Own of this activity: " + isCurrentAuthOwnThisActivityOfParticipant);
+        //System.out.println(isCurrentAuthOwnThisParticipant || isCurrentAuthOwnThisActivityOfParticipant);
+    }
+
+    private boolean isCurrentUserHostTheActivity(CreateActivityParticipantDto createActivityParticipantDto) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            Activity activity = activityRepository.findActivityById(createActivityParticipantDto.getActivityId()).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Activity ID: " + createActivityParticipantDto.getActivityId() + " Not Found"));
+            return activity.getHostUser().getUserId() == currentAuthId;
+        }
+    }
 }

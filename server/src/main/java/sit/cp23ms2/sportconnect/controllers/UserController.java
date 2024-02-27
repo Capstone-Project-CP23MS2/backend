@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Collections;
 
 @RestController
@@ -66,10 +67,21 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto update(@Valid @ModelAttribute UpdateUserDto updateUserDto, @PathVariable Integer id) throws ForbiddenException {
+    public UserDto update(@Valid @ModelAttribute UpdateUserDto updateUserDto, @PathVariable Integer id) throws ForbiddenException, ParseException {
         return userService.update(updateUserDto, id);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {
+        userService.delete(id);
+    }
+
+    @DeleteMapping("/deleteByEmail/{email}")
+    public void deleteByEmail(@PathVariable String email) {
+        userService.deleteByEmail(email);
+    }
+
+    //TEST
     @GetMapping("/us")
     public PageUserDto getUser(@RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int pageSize,

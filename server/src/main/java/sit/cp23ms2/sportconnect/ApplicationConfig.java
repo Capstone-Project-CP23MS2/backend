@@ -8,6 +8,7 @@ import sit.cp23ms2.sportconnect.dtos.request.RequestDto;
 import sit.cp23ms2.sportconnect.entities.Activity;
 import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
 import sit.cp23ms2.sportconnect.entities.Request;
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 import sit.cp23ms2.sportconnect.utils.ListMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -61,8 +62,8 @@ public class ApplicationConfig implements WebMvcConfigurer {
 //                .addResourceLocations("classpath:/META-INF/resources/webjars/");
 //    }
 
-//    @Bean
-//    public AuthenticationUtil authenticationUtil() {
-//        return new AuthenticationUtil();
-//    }
+    @Bean
+    public AuthenticationUtil authenticationUtil() {
+        return new AuthenticationUtil();
+    }
 }

@@ -25,7 +25,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
-
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
 import java.util.List;
@@ -43,8 +43,8 @@ public class ActivityService {
     private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private CategoryRepository categoryRepository;
-//    @Autowired
-//    private AuthenticationUtil authenticationUtil;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     //nameError
     final private FieldError titleErrorObj = new FieldError("createActivityDto",
@@ -89,8 +89,8 @@ public class ActivityService {
 
     public ActivityDto create(CreateActivityDto newActivity, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
         //Error validation
-//        if(!isCurrentUserWillBeHostActivity(newActivity))
-//            throw new ForbiddenException("You're not allowed to create other's activity");
+        if(!isCurrentUserWillBeHostActivity(newActivity))
+            throw new ForbiddenException("You're not allowed to create other's activity");
         if(repository.existsByTitle(newActivity.getTitle())) {
             result.addError(titleErrorObj);
         }
@@ -110,8 +110,8 @@ public class ActivityService {
     public ActivityDto update(UpdateActivityDto updateActivity, Integer id, BindingResult result) throws MethodArgumentNotValidException,
             ForbiddenException {
         Activity activity = getById(id);
-//        if(!isCurrentUserHost(activity))
-//            throw new ForbiddenException("You're not allowed to edit this activity");
+        if(!isCurrentUserHost(activity))
+            throw new ForbiddenException("You're not allowed to edit this activity");
         if(repository.existsByTitleAndActivityIdNot(updateActivity.getTitle(), id)) { //Check duplicate title
             result.addError(titleErrorObj);
         }
@@ -145,18 +145,26 @@ public class ActivityService {
         Activity activity = repository.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         id + "does not exist !"));
-//        if(!isCurrentUserHost(activity))
-//            throw new ForbiddenException("You're not allowed to delete this activity");
+        if(!isCurrentUserHost(activity))
+            throw new ForbiddenException("You're not allowed to delete this activity");
         repository.deleteById(id);
     }
 
-//    private boolean isCurrentUserHost(Activity activity) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        return activity.getHostUser().getUserId() == currentAuthId;
-//    }
-//
-//    private boolean isCurrentUserWillBeHostActivity(CreateActivityDto createActivityDto) {
-//        Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
-//        return createActivityDto.getHostUserId() == currentAuthId;
-//    }
+    private boolean isCurrentUserHost(Activity activity) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return activity.getHostUser().getUserId() == currentAuthId;
+        }
+    }
+
+    private boolean isCurrentUserWillBeHostActivity(CreateActivityDto createActivityDto) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return createActivityDto.getHostUserId() == currentAuthId;
+        }
+    }
 }
