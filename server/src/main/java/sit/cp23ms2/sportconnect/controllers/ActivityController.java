@@ -32,12 +32,13 @@ public class ActivityController {
     public ModelMapper modelMapper;
 
     @GetMapping
+
     public PageActivityDto getActivity(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int pageSize,
                                        @RequestParam(defaultValue = "place") String sortBy,
                                        @RequestParam(required = false)Set<Integer> categoryIds,
-                                        @RequestParam(required = false)String title,
-                                        @RequestParam(required = false)String place
+                                       @RequestParam(required = false)String title,
+                                       @RequestParam(required = false)String place
             , HttpServletResponse response) throws IOException {
         //response.sendRedirect("https://google.com");
 
