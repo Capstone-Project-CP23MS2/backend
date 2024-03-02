@@ -53,16 +53,14 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/**")
                 .permitAll()
-                .antMatchers(HttpMethod.POST, "/api/users")
+                .antMatchers( "/api/users")
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/auth/login")
                 .permitAll()
-                .antMatchers("/docs/swagger-ui/**")
+                .antMatchers("/docs/swagger-ui/**", "/docs/v3/**", "/v3/**")
                 .permitAll()
-                .antMatchers("/docs/v3/**")
-                .permitAll()
-                .antMatchers("/v3/**")
-                .permitAll()
+                .antMatchers("/api/notifications", "/api/notifications/**", "/api/locations", "/api/locations/**",
+                        "/api/interests", "/api/interests/**").permitAll()
                 .anyRequest().authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         security.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

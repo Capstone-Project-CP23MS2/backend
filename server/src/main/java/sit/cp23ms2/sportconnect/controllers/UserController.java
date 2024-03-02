@@ -5,10 +5,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity.CreateActivityDto;
-import sit.cp23ms2.sportconnect.dtos.user.CreateUserDto;
-import sit.cp23ms2.sportconnect.dtos.user.PageUserDto;
-import sit.cp23ms2.sportconnect.dtos.user.UpdateUserDto;
-import sit.cp23ms2.sportconnect.dtos.user.UserDto;
+import sit.cp23ms2.sportconnect.dtos.user.*;
 import sit.cp23ms2.sportconnect.entities.User;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.UserService;
@@ -52,17 +49,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable Integer id) {
-        return modelMapper.map(userService.getById(id), UserDto.class);
+    public UserDetailDto getUserById(@PathVariable Integer id) {
+        return modelMapper.map(userService.getById(id), UserDetailDto.class);
     }
 
     @GetMapping("/getByEmail/{email}")
-    public UserDto getUserByEmail(@PathVariable String email) {
-        return modelMapper.map(userService.getByEmail(email), UserDto.class) ;
+    public UserDetailDto getUserByEmail(@PathVariable String email) {
+        return modelMapper.map(userService.getByEmail(email), UserDetailDto.class) ;
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @ModelAttribute CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
+    public UserDetailDto createUser(@Valid @ModelAttribute CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
         return userService.create(newUser, result);
     }
 

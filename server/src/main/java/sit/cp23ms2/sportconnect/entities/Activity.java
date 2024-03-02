@@ -38,8 +38,9 @@ public class Activity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "place")
-    private String place;
+    @ManyToOne
+    @JoinColumn(name = "locationId")
+    private Location location;
 
     @Column(name = "dateTime")
     private Instant dateTime;

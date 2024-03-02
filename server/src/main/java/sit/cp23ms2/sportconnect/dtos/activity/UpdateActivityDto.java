@@ -21,8 +21,8 @@ public class UpdateActivityDto {
     private String title;
     private String description;
 
-    @Size(max = 100, message = "size must not over 100")
-    private String place;
+
+    private Integer locationId;
     private Instant dateTime;
     private Integer duration;
     private Integer noOfMembers;
