@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sit.cp23ms2.sportconnect.entities.Category;
 import sit.cp23ms2.sportconnect.enums.Gender;
 import sit.cp23ms2.sportconnect.utils.ValueOfEnum;
 
@@ -11,6 +12,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,4 +35,6 @@ public class UpdateUserDto {
 
     @Size(max = 24, message = "size must be within 24")
     private String lineId;
+
+    private Set<Integer> userInterests;
 }

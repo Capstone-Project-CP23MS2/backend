@@ -1,6 +1,7 @@
 package sit.cp23ms2.sportconnect.dtos.activity;
 
 import sit.cp23ms2.sportconnect.entities.Category;
+import sit.cp23ms2.sportconnect.entities.Location;
 import sit.cp23ms2.sportconnect.entities.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class ActivityDto {
     private String categoryName;
     private String title;
     private String description;
-    private String place;
+    private Location location;
     private Instant dateTime;
     private Integer duration;
     private Instant createdAt;

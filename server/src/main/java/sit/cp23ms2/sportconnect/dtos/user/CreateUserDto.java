@@ -48,6 +48,8 @@ public class CreateUserDto {
 
     private String dateOfBirth;
 
+    private Integer locationId;
+
     @NotBlank(message = "must not be null or blank")
     @Size(max = 10, message = "size must be within 10")
     private String phoneNumber;

@@ -29,9 +29,7 @@ public class CreateActivityDto {
     @NotBlank(message = "must not be null or blank")
     private String description;
 
-    @NotBlank(message = "must not be null or blank")
-    @Size(max = 100, message = "size must not over 100")
-    private String place;
+    private Integer locationId;
 
     @NotNull(message = "must not be null or blank")
     private Instant dateTime;

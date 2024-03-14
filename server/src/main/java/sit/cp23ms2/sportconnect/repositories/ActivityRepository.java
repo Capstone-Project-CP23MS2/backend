@@ -15,35 +15,29 @@ import java.util.Set;
 public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     @Query(
             value = "SELECT * FROM \"activities\" WHERE (\"categoryId\" IN (:categoryIds) OR COALESCE(:categoryIds) IS NULL) " +
-                    "AND (LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)" +
-                    "AND (LOWER(\"place\") LIKE LOWER(concat('%', :place, '%')) OR LOWER(:place) IS NULL)",nativeQuery = true
+                    "AND (LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)",nativeQuery = true
     )
     Page<Activity> findAllActivities(
             Pageable pageable,
             @Param("categoryIds") Set<Integer> categoryIds,
-            @Param("title") String title,
-            @Param("place") String place
+            @Param("title") String title
     );
 
     @Query(
             value = "SELECT * FROM \"activities\" WHERE " +
-                    "(LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)" +
-                    "AND (LOWER(\"place\") LIKE LOWER(concat('%', :place, '%')) OR LOWER(:place) IS NULL)",nativeQuery = true
+                    "(LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)",nativeQuery = true
     )
     Page<Activity> findAllActivitiesNoCategoryFilter(
             Pageable pageable,
-            @Param("title") String title,
-            @Param("place") String place
+            @Param("title") String title
     );
 
     @Query(
             value = "SELECT * FROM \"activities\" WHERE " +
-                    "(LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)" +
-                    "AND (LOWER(\"place\") LIKE LOWER(concat('%', :place, '%')) OR LOWER(:place) IS NULL)",nativeQuery = true
+                    "(LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)",nativeQuery = true
     )
     List<Activity> findAllActivitiesNoCategoryFilterNoPage(
-            @Param("title") String title,
-            @Param("place") String place
+            @Param("title") String title
     );
 
     @Query(

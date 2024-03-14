@@ -1,26 +1,20 @@
 package sit.cp23ms2.sportconnect.dtos.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.NoArgsConstructor;
-import sit.cp23ms2.sportconnect.entities.Activity;
+import lombok.Getter;
+import lombok.Setter;
 import sit.cp23ms2.sportconnect.entities.Category;
 import sit.cp23ms2.sportconnect.entities.Location;
 import sit.cp23ms2.sportconnect.enums.Gender;
 import sit.cp23ms2.sportconnect.enums.Role;
-import lombok.Getter;
-import lombok.Setter;
-
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class UserDto {
+public class UserDetailDto {
     private Integer userId;
     private String username;
     private String email;
@@ -32,13 +26,7 @@ public class UserDto {
     private String lineId;
     private Instant lastLogin;
     private LocalDate registrationDate;
-//    private Location location;
-//    private Set<Category> userInterests;
+    private Location location;
+    private Set<Category> userInterests;
 
-//    private Gender convertGender(Gender gender) {
-//        Gender.fromEnum()
-//    }
-
-    @JsonIgnore
-    private Set<Activity> userActivities = new HashSet<>();
 }

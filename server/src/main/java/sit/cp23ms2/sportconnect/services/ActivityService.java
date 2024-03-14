@@ -8,6 +8,7 @@ import sit.cp23ms2.sportconnect.dtos.activity.*;
 import sit.cp23ms2.sportconnect.entities.Activity;
 import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
 import sit.cp23ms2.sportconnect.entities.Category;
+import sit.cp23ms2.sportconnect.entities.Location;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.ActivityParticipantRepository;
@@ -25,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
+import sit.cp23ms2.sportconnect.repositories.LocationRepository;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
@@ -44,21 +46,25 @@ public class ActivityService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
+    LocationRepository locationRepository;
+    @Autowired
     private AuthenticationUtil authenticationUtil;
+    @Autowired
+    LocationService locationService;
 
     //nameError
     final private FieldError titleErrorObj = new FieldError("createActivityDto",
             "title", "Title already used in other Activity now! Please use other title");
 
-    public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title, String place) {
+    public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title) {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize, sort);
         Page<Activity> listActivities;
         if(categoryIds != null) {
-            listActivities = repository.findAllActivities(pageRequest, categoryIds, title, place); //ได้เป็น Pageable ของ User\
+            listActivities = repository.findAllActivities(pageRequest, categoryIds, title); //ได้เป็น Pageable ของ User\
         } else {
-            listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title, place);
-            System.out.println(title + place);
+            listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title);
+            System.out.println(title);
         }
         Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
             //set category name in dto
@@ -78,7 +84,7 @@ public class ActivityService {
     }
 
     public List<Activity> getTest(SearchTest searchTest) {
-        return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle(), searchTest.getPlace());
+        return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle());
 //        return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle(), searchTest.getPlace());
     }
 
@@ -97,6 +103,7 @@ public class ActivityService {
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
 
         Activity activity = modelMapper.map(newActivity, Activity.class);
+        activity.setLocation(locationService.getById(newActivity.getLocationId()));
         //save Activity to database
         Activity createdActivity = repository.saveAndFlush(activity);
         //create participant (because hostUser is also participant)
@@ -134,8 +141,10 @@ public class ActivityService {
         }
         if(updateActivity.getDescription() != null && !updateActivity.getDescription().trim().equals("")) //Set Description
             existingActivity.setDescription(updateActivity.getDescription());
-        if(updateActivity.getPlace() != null && !updateActivity.getPlace().trim().equals("")) //Set Place
-            existingActivity.setPlace(updateActivity.getPlace());
+        if(updateActivity.getLocationId() != null){
+            Location newLocation = locationRepository.findById(updateActivity.getLocationId()).orElseThrow(() -> new ApiNotFoundException("Location not found!"));
+            existingActivity.setLocation(newLocation);
+        }
         if(updateActivity.getDateTime() != null && !updateActivity.getDateTime().toString().trim().equals("")) //Set Date & Time
             existingActivity.setDateTime(updateActivity.getDateTime());
         return existingActivity;

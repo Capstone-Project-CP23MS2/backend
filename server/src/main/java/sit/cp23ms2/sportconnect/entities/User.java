@@ -56,6 +56,10 @@ public class User implements Serializable {
     @Column(name = "dateOfBirth")
     private Date dateOfBirth;
 
+    @ManyToOne
+    @JoinColumn(name = "locationId")
+    private Location location;
+
     @Column(name = "phoneNumber")
     private String phoneNumber;
 
@@ -87,7 +91,7 @@ public class User implements Serializable {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
             })
-    @JoinTable(name = "userInterests"
+    @JoinTable(name = "userInterest"
             ,joinColumns = {@JoinColumn(name = "userId")}
             ,inverseJoinColumns = {@JoinColumn(name = "categoryId")})
     private Set<Category> userInterests = new HashSet<>();

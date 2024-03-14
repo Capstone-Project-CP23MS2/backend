@@ -7,16 +7,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity.CreateActivityDto;
-import sit.cp23ms2.sportconnect.dtos.user.CreateUserDto;
-import sit.cp23ms2.sportconnect.dtos.user.PageUserDto;
-import sit.cp23ms2.sportconnect.dtos.user.UpdateUserDto;
-import sit.cp23ms2.sportconnect.dtos.user.UserDto;
-import sit.cp23ms2.sportconnect.entities.Activity;
-import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
-import sit.cp23ms2.sportconnect.entities.User;
+import sit.cp23ms2.sportconnect.dtos.user.*;
+import sit.cp23ms2.sportconnect.entities.*;
 import sit.cp23ms2.sportconnect.enums.Gender;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
+import sit.cp23ms2.sportconnect.repositories.CategoryRepository;
+import sit.cp23ms2.sportconnect.repositories.LocationRepository;
 import sit.cp23ms2.sportconnect.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +26,8 @@ import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Service
@@ -39,6 +38,10 @@ public class UserService {
     private UserRepository repository;
     @Autowired
     private AuthenticationUtil authenticationUtil;
+    @Autowired
+    CategoryRepository categoryRepository;
+    @Autowired
+    LocationService locationService;
 
     //nameError
     final private FieldError nameErrorObj = new FieldError("createUserDto",
@@ -73,7 +76,7 @@ public class UserService {
         return repository.findByEmail(email).orElseThrow(() -> new ApiNotFoundException("User " + finalEmail + " not found!"));
     }
 
-    public UserDto create(CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
+    public UserDetailDto create(CreateUserDto newUser, BindingResult result) throws MethodArgumentNotValidException {
         //Error validation
         if(repository.existsByUsername(newUser.getUsername())) {
             result.addError(nameErrorObj);
@@ -84,9 +87,10 @@ public class UserService {
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
 
         User user = modelMapper.map(newUser, User.class);
+        user.setLocation(locationService.getById(newUser.getLocationId()));
         //save User to database
         User createdUser = repository.saveAndFlush(user);
-        return modelMapper.map(createdUser, UserDto.class);
+        return modelMapper.map(createdUser, UserDetailDto.class);
     }
 
     public UserDto update(UpdateUserDto updateUserDto, Integer id) throws ForbiddenException, ParseException {
@@ -96,6 +100,8 @@ public class UserService {
         if(!isCurrentUserHost(user))
             throw new ForbiddenException("You're not allowed to edit this user");
         User updatedUser = mapUser(user, updateUserDto);
+        if(updatedUser.getUserInterests() != null)
+            mapInterests(updatedUser, updateUserDto);
         return modelMapper.map(repository.saveAndFlush(updatedUser), UserDto.class);
     }
 
@@ -116,6 +122,16 @@ public class UserService {
         if(updateUserDto.getLineId() != null) {
             existingUser.setLineId(updateUserDto.getLineId());
         }
+        return existingUser;
+    }
+
+    private User mapInterests(User existingUser, UpdateUserDto updateUserDto) {
+        Set<Category> userInterests = new HashSet<>();
+        for(Integer categoryId : updateUserDto.getUserInterests()) {
+            userInterests.add(categoryRepository.findById(categoryId).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Category ID: " + categoryId + " Not Found")));
+        }
+        existingUser.setUserInterests(userInterests);
         return existingUser;
     }
 

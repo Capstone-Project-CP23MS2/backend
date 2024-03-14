@@ -4,10 +4,11 @@ import org.modelmapper.PropertyMap;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity_participants.ActivityParticipantsDto;
+import sit.cp23ms2.sportconnect.dtos.location.LocationDto;
+import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
 import sit.cp23ms2.sportconnect.dtos.request.RequestDto;
-import sit.cp23ms2.sportconnect.entities.Activity;
-import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
-import sit.cp23ms2.sportconnect.entities.Request;
+import sit.cp23ms2.sportconnect.dtos.user_interests.InterestDto;
+import sit.cp23ms2.sportconnect.entities.*;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 import sit.cp23ms2.sportconnect.utils.ListMapper;
 import org.modelmapper.ModelMapper;
@@ -44,6 +45,18 @@ public class ApplicationConfig implements WebMvcConfigurer {
         modelMapper.addMappings(new PropertyMap<Activity, ActivityDto>() {
             protected void configure() {
                 map().setHostUserId(source.getHostUser().getUserId());
+            }
+        });
+        modelMapper.addMappings(new PropertyMap<Notification, NotificationDto>() {
+            protected void configure() {
+                map().setTargetId(source.getTargetId().getUserId());
+            }
+        });
+        modelMapper.addMappings(new PropertyMap<UserInterest, InterestDto>() {
+            protected void configure() {
+                map().setUserId(source.getUser().getUserId());
+                map().setEmail(source.getUser().getEmail());
+                map().setCategoryName(source.getCategory().getName());
             }
         });
         return modelMapper;

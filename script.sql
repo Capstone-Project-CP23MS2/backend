@@ -13,16 +13,24 @@ DROP TABLE IF EXISTS "activityParticipants" CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
 DROP TABLE IF EXISTS "activities" CASCADE;
 DROP TABLE IF EXISTS "request" CASCADE;
+DROP TABLE IF EXISTS "notification" CASCADE;
+DROP TABLE IF EXISTS "userInterest" CASCADE;
+DROP TABLE IF EXISTS "location" CASCADE;
 DROP TYPE IF EXISTS gender_user;
 DROP TYPE IF EXISTS status_participant;
 DROP TYPE IF EXISTS role_user;
+DROP TYPE IF EXISTS type_notification;
 DROP SEQUENCE IF EXISTS users_sequence;
 DROP SEQUENCE IF EXISTS activities_sequence;
 DROP SEQUENCE IF EXISTS categories_sequence;
+DROP SEQUENCE IF EXISTS notifications_sequence;
+DROP SEQUENCE IF EXISTS locations_sequence;
 
 CREATE SEQUENCE users_sequence START 1;
 CREATE SEQUENCE activities_sequence START 1;
 CREATE SEQUENCE categories_sequence START 1;
+CREATE SEQUENCE notifications_sequence START 1;
+CREATE SEQUENCE locations_sequence START 1;
 
 CREATE TABLE IF NOT EXISTS public.activities
 (
@@ -31,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.activities
     "categoryId" integer NOT NULL,
     title character varying(100) COLLATE pg_catalog."default" NOT NULL,
     description text,
-    place character varying(100) NOT NULL,
+	"locationId" integer NOT NULL,
     "dateTime" timestamp with time zone NOT NULL,
     duration integer NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
@@ -50,6 +58,7 @@ CREATE TABLE IF NOT EXISTS public."user"
     "profilePicture" text COLLATE pg_catalog."default",
     gender gender_user,
     "dateOfBirth" date,
+	"locationId" integer NOT NULL,
     "phoneNumber" character varying(10),
     "lineId" character varying(24),
     "lastLogin" timestamp with time zone,
@@ -89,12 +98,47 @@ CREATE TABLE IF NOT EXISTS public.categories
     description text
 );
 
-CREATE TABLE IF NOT EXISTS public."userInterests"
+-- CREATE TABLE IF NOT EXISTS public."userInterests"
+-- (
+--     "userId" serial NOT NULL,
+--     "categoryId" serial NOT NULL,
+--     PRIMARY KEY ("userId", "categoryId")
+-- );
+
+CREATE TABLE IF NOT EXISTS public.location
 (
-    "userId" serial NOT NULL,
-    "categoryId" serial NOT NULL,
+    "locationId" serial NOT NULL,
+    name character varying(20) NOT NULL,
+	latitude numeric,
+    longitude numeric,
+    PRIMARY KEY ("locationId")
+);
+
+CREATE TYPE type_notification AS ENUM ('invite', 'join', 'leave', 'request', 'recommend', 'review', 'activity_start', 'activity_end');
+CREATE TABLE IF NOT EXISTS public.notification
+(
+    "notificationId" serial NOT NULL,
+    "targetId" integer,
+    unread boolean,
+    type character varying,
+    message character varying,
+    "createdAt" timestamp with time zone,
+    PRIMARY KEY ("notificationId")
+);
+
+CREATE TABLE IF NOT EXISTS public."userInterest"
+(
+    "userId" integer NOT NULL,
+    "categoryId" integer NOT NULL,
     PRIMARY KEY ("userId", "categoryId")
 );
+
+ALTER TABLE IF EXISTS public."user"
+    ADD CONSTRAINT "locationId" FOREIGN KEY ("locationId")
+    REFERENCES public.location ("locationId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 ALTER TABLE IF EXISTS public.activities
     ADD CONSTRAINT "hostId" FOREIGN KEY ("hostUserId")
@@ -106,6 +150,13 @@ ALTER TABLE IF EXISTS public.activities
 ALTER TABLE IF EXISTS public.activities
     ADD CONSTRAINT "categoryId" FOREIGN KEY ("categoryId")
     REFERENCES public.categories ("categoryId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+	
+ALTER TABLE IF EXISTS public.activities
+    ADD CONSTRAINT "locationId" FOREIGN KEY ("locationId")
+    REFERENCES public.location ("locationId") MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -140,7 +191,29 @@ ALTER TABLE IF EXISTS public.request
     ON DELETE CASCADE
     NOT VALID;
 
-ALTER TABLE IF EXISTS public."userInterests"
+-- ALTER TABLE IF EXISTS public."userInterests"
+--     ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
+--     REFERENCES public."user" ("userId") MATCH SIMPLE
+--     ON UPDATE NO ACTION
+--     ON DELETE NO ACTION
+--     NOT VALID;
+
+
+-- ALTER TABLE IF EXISTS public."userInterests"
+--     ADD CONSTRAINT "categoryId" FOREIGN KEY ("categoryId")
+--     REFERENCES public.categories ("categoryId") MATCH SIMPLE
+--     ON UPDATE NO ACTION
+--     ON DELETE NO ACTION
+--     NOT VALID;
+	
+ALTER TABLE IF EXISTS public.notification
+    ADD CONSTRAINT "targetId" FOREIGN KEY ("targetId")
+    REFERENCES public."user" ("userId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+ALTER TABLE IF EXISTS public."userInterest"
     ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
     REFERENCES public."user" ("userId") MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -148,7 +221,7 @@ ALTER TABLE IF EXISTS public."userInterests"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."userInterests"
+ALTER TABLE IF EXISTS public."userInterest"
     ADD CONSTRAINT "categoryId" FOREIGN KEY ("categoryId")
     REFERENCES public.categories ("categoryId") MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -158,12 +231,17 @@ ALTER TABLE IF EXISTS public."userInterests"
 END;
 
 -- INSERT DATA
+insert into "location" values
+(nextval('locations_sequence'), 'Bangkok', 21.124325, 21.1111111),
+(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11);
+
 insert into "user" values
-(nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Vinncent', 'Vinncent@email.com', 'user', '45FGFdsf093lfgffflDSAFDSAF43','Female', '2020-09-27', 'phone','line',now(),now()),
-(nextval('users_sequence'), 'NewUser', 'asdfsda@email.com', 'user', 'fd43DDSfgFDJkmAF43','Other', '2020-09-27', 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Mbappe', 's77777@email.com', 'user', '12sfdSDww232trhy3DDSfgFDJkmAF43','NotApplicable', '2020-09-27', 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 'phone','line',now(),now());
+(nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Vinncent', 'Vinncent@email.com', 'user', '45FGFdsf093lfgffflDSAFDSAF43','Female', '2020-09-27', 1, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'NewUser', 'asdfsda@email.com', 'user', 'fd43DDSfgFDJkmAF43','Other', '2020-09-27', 2, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Mbappe', 's77777@email.com', 'user', '12sfdSDww232trhy3DDSfgFDJkmAF43','NotApplicable', '2020-09-27', 1, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 1, 'phone','line',now(),now());
 
 insert into "categories" values
 (nextval('categories_sequence'), 'Football', '22 players 11 each team'),
@@ -171,10 +249,10 @@ insert into "categories" values
 (nextval('categories_sequence'), 'Tennis', '1v1 Tennis');
 
 insert into "activities" values
-(nextval('activities_sequence'), 1, 1, 'Football Party', 'Description', 'Place', now(), 40, now(), now(), 22),
-(nextval('activities_sequence'), 2, 1, 'Football After Class', 'DescriptionZ', 'Place2', now(), 100, now(), now(), 22),
-(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 'สนาม A', now(), 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 'สนามหลังมอ', now(), 100, now(), now(), 12);
+(nextval('activities_sequence'), 1, 1, 'Football Party', 'Description', 2, now(), 40, now(), now(), 22),
+(nextval('activities_sequence'), 2, 1, 'Football After Class', 'DescriptionZ', 1, now(), 100, now(), now(), 22),
+(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 2, now(), 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 1, now(), 100, now(), now(), 12);
 
 insert into "activityParticipants" values
 (1, 1, 'ready', now()),
@@ -187,3 +265,11 @@ insert into "activityParticipants" values
 insert into "request" values
 (4, 1, 'อยากพริ้วว่ะ', now()),
 (5, 4, 'ผมเล่นเทนนิสโคตรโหด', now());
+
+insert into "userInterest" values
+(1, 3),
+(2, 1);
+
+insert into "notification" values
+(nextval('notifications_sequence'), 1, true, 'join', 'asdfadsfasdfasd', now()),
+(nextval('notifications_sequence'), 2, false, 'leave', '23213', now());
