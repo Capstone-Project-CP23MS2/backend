@@ -13,28 +13,11 @@ jobs:
       with:
         clean: false
 
-    # Check docker containers logs
-    - name: Check Logs
-      run: docker compose logs
-      
     # Down Docker-compose container
     - name: Stop and Remove Container
       run: |
         docker compose down -v
-        docker rmi work-backupp || true
       
-    # Delete Docker Images (Frontend, Backend)
-    # - name: Remove Backend Image
-    #   run: docker rmi work-backapp
-
-    # Fetch latest version from branch dev 
-    - name: Fetching Latest Data
-      run: git fetch
-      
-    # Pull from Github 
-    - name: Pulling Latest Data
-      run: git pull
-          
     # Start Docker-compose
     - name: Start Docker Container
-      run: docker compose up --build
+      run: docker compose up -d
