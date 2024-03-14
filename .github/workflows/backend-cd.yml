@@ -16,7 +16,7 @@ jobs:
     # Down Docker-compose container
     - name: Stop and Remove Container
       run: |
-        docker compose down backapp
+        docker compose down -v
         docker rmi work-backupp || true
       
     # Delete Docker Images (Frontend, Backend)
