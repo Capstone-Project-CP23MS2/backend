@@ -14,12 +14,14 @@ jobs:
         clean: false
     
     # Down Docker-compose container
-    - name: Stop Docker Containers
-      run: docker compose down
+    - name: Stop and Remove Container
+      run: |
+        docker compose down -v
+        docker rmi work-backupp || true
       
     # Delete Docker Images (Frontend, Backend)
-    - name: Remove Backend Image
-      run: docker rmi work-backapp
+    # - name: Remove Backend Image
+    #   run: docker rmi work-backapp
 
     # Fetch latest version from branch dev 
     - name: Fetching Latest Data
