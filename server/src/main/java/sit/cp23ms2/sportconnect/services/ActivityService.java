@@ -57,8 +57,8 @@ public class ActivityService {
             "title", "Title already used in other Activity now! Please use other title");
 
     public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title) {
-        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
-        Pageable pageRequest = PageRequest.of(pageNum, pageSize, sort);
+        //Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
+        Pageable pageRequest = PageRequest.of(pageNum, pageSize);
         Page<Activity> listActivities;
         if(categoryIds != null) {
             listActivities = repository.findAllActivities(pageRequest, categoryIds, title); //ได้เป็น Pageable ของ User\

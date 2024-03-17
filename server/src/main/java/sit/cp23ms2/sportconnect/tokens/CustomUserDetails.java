@@ -9,7 +9,7 @@ public class CustomUserDetails implements UserDetails {
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
-    private Integer userId;  // เพิ่ม custom field ตรงนี้
+    private Integer userId;  // เพิ่ม custom field
 
     public CustomUserDetails(String email, String password, Collection<? extends GrantedAuthority> authorities, Integer userId) {
         this.email = email;
