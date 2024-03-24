@@ -70,7 +70,7 @@ public class ActivityController {
     }
 
     @PatchMapping("/{id}")
-    public ActivityDto updateActivity(@Valid @RequestBody UpdateActivityDto updateActivityDto,
+    public ActivityDto updateActivity(@Valid @ModelAttribute UpdateActivityDto updateActivityDto,
                                       @PathVariable Integer id, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
         return activityService.update(updateActivityDto, id, result);
     }
