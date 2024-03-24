@@ -14,10 +14,11 @@ jobs:
         clean: false
 
     # Down Docker-compose container
-    - name: Stop and Remove Container
+    - name: Stop Container and Remove Image 
       run: |
         docker compose down -v
-      
+        docker rmi work-backapp
+
     # Start Docker-compose
     - name: Start Docker Container
-      run: docker compose up --build
+      run: docker compose up -d
