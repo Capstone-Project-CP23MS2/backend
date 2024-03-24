@@ -20,4 +20,4 @@ jobs:
       
     # Start Docker-compose
     - name: Start Docker Container
-      run: docker compose up -d
+      run: docker compose up --build
