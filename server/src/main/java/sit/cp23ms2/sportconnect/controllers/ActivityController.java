@@ -1,6 +1,10 @@
 package sit.cp23ms2.sportconnect.controllers;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity.CreateActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity.PageActivityDto;
@@ -70,9 +74,19 @@ public class ActivityController {
     }
 
     @PatchMapping("/{id}")
-    public ActivityDto updateActivity(@Valid @ModelAttribute UpdateActivityDto updateActivityDto,
+    public ResponseEntity<?> updateActivity(@Valid @ModelAttribute UpdateActivityDto updateActivityDto,
                                       @PathVariable Integer id, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
-        return activityService.update(updateActivityDto, id, result);
+
+        try {
+            return ResponseEntity.ok(activityService.update(updateActivityDto, id, result));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (HttpClientErrorException.UnsupportedMediaType e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage() + " Invalid Data Format");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage() + " Internal Server Error");
+        }
+
     }
 
     @DeleteMapping("/{id}")
