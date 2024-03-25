@@ -117,14 +117,18 @@ public class ActivityService {
     public ActivityDto update(UpdateActivityDto updateActivity, Integer id, BindingResult result) throws MethodArgumentNotValidException,
             ForbiddenException {
         Activity activity = getById(id);
+        System.out.println(activity.getTitle());
         if(!isCurrentUserHost(activity))
             throw new ForbiddenException("You're not allowed to edit this activity");
-        if(repository.existsByTitleAndActivityIdNot(updateActivity.getTitle(), id)) { //Check duplicate title
-            result.addError(titleErrorObj);
+        if(updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) {
+            if(repository.existsByTitleAndActivityIdNot(updateActivity.getTitle(), id)) { //Check duplicate title
+                result.addError(titleErrorObj);
+            }
         }
+
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
 
-        System.out.println(updateActivity.getTitle());
+        //System.out.println("โย่: " + updateActivity.getTitle());
 
         Activity updatedActivity = mapActivity(activity, updateActivity);
 
@@ -132,21 +136,27 @@ public class ActivityService {
     }
 
     public Activity mapActivity(Activity existingActivity, UpdateActivityDto updateActivity) {
-        if(updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) //Set Title
-            System.out.println(updateActivity.getTitle());
+        if(updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) { //Set Title
+            System.out.println("สวัสดี: "+ updateActivity.getTitle());
             existingActivity.setTitle(updateActivity.getTitle());
+        }
         if(updateActivity.getCategoryId() != null) { //Set Category
             Category newCategory = categoryRepository.findById(updateActivity.getCategoryId()).orElseThrow(() -> new ApiNotFoundException("Category not found!"));
             existingActivity.setCategoryId(newCategory);
         }
         if(updateActivity.getDescription() != null && !updateActivity.getDescription().trim().equals("")) //Set Description
             existingActivity.setDescription(updateActivity.getDescription());
-        if(updateActivity.getLocationId() != null){
+        if(updateActivity.getLocationId() != null){ //Set Location ID
             Location newLocation = locationRepository.findById(updateActivity.getLocationId()).orElseThrow(() -> new ApiNotFoundException("Location not found!"));
             existingActivity.setLocation(newLocation);
         }
         if(updateActivity.getDateTime() != null && !updateActivity.getDateTime().toString().trim().equals("")) //Set Date & Time
             existingActivity.setDateTime(updateActivity.getDateTime());
+        if(updateActivity.getDuration() != null)
+            existingActivity.setDuration(updateActivity.getDuration());
+        if(updateActivity.getNoOfMembers() != null) {
+            existingActivity.setNoOfMembers(updateActivity.getNoOfMembers());
+        }
         return existingActivity;
     }
 
