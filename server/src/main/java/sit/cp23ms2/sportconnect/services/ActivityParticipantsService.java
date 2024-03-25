@@ -65,8 +65,8 @@ public class ActivityParticipantsService {
             throws MethodArgumentNotValidException, ApiNotFoundException, ForbiddenException {
         boolean isThereActivity = activityRepository.existsById(newParticipant.getActivityId());
         boolean isThereUser = userRepository.existsById(newParticipant.getUserId());
-        if(!isCurrentUserHostTheActivity(newParticipant))
-            throw new ForbiddenException("You're not allowed to create other's participant if you're not the host");
+//        if(!isCurrentUserHostTheActivity(newParticipant))
+//            throw new ForbiddenException("You're not allowed to create other's participant if you're not the host");
         if(!isThereActivity)
             throw new ApiNotFoundException("Activity not found!");
         if(!isThereUser)
