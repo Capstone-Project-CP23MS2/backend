@@ -16,21 +16,30 @@ DROP TABLE IF EXISTS "request" CASCADE;
 DROP TABLE IF EXISTS "notification" CASCADE;
 DROP TABLE IF EXISTS "userInterest" CASCADE;
 DROP TABLE IF EXISTS "location" CASCADE;
+DROP TABLE IF EXISTS "reviewActivity" CASCADE;
+DROP TABLE IF EXISTS "reviewUser" CASCADE;
+
 DROP TYPE IF EXISTS gender_user;
 DROP TYPE IF EXISTS status_participant;
 DROP TYPE IF EXISTS role_user;
 DROP TYPE IF EXISTS type_notification;
+
 DROP SEQUENCE IF EXISTS users_sequence;
 DROP SEQUENCE IF EXISTS activities_sequence;
 DROP SEQUENCE IF EXISTS categories_sequence;
 DROP SEQUENCE IF EXISTS notifications_sequence;
 DROP SEQUENCE IF EXISTS locations_sequence;
+DROP SEQUENCE IF EXISTS reviews_activity_sequence;
+DROP SEQUENCE IF EXISTS reviews_user_sequence;
 
 CREATE SEQUENCE users_sequence START 1;
 CREATE SEQUENCE activities_sequence START 1;
 CREATE SEQUENCE categories_sequence START 1;
 CREATE SEQUENCE notifications_sequence START 1;
 CREATE SEQUENCE locations_sequence START 1;
+CREATE SEQUENCE reviews_activity_sequence START 1;
+CREATE SEQUENCE reviews_user_sequence START 1;
+
 
 CREATE TABLE IF NOT EXISTS public.activities
 (
@@ -133,6 +142,27 @@ CREATE TABLE IF NOT EXISTS public."userInterest"
     PRIMARY KEY ("userId", "categoryId")
 );
 
+CREATE TABLE IF NOT EXISTS public."reviewActivity"
+(
+    "reviewId" serial NOT NULL,
+    "activityId" integer NOT NULL,
+    "userId" integer NOT NULL,
+    rating integer,
+    comment character varying,
+    "createdAt" timestamp with time zone,
+    PRIMARY KEY ("reviewId")
+);
+
+CREATE TABLE IF NOT EXISTS public."reviewUser"
+(
+    "reviewId" serial NOT NULL,
+    "userId" integer NOT NULL,
+    "reviewerId" integer NOT NULL,
+    comment character varying,
+    "createdAt" timestamp with time zone,
+    PRIMARY KEY ("reviewId")
+);
+
 ALTER TABLE IF EXISTS public."user"
     ADD CONSTRAINT "locationId" FOREIGN KEY ("locationId")
     REFERENCES public.location ("locationId") MATCH SIMPLE
@@ -227,6 +257,36 @@ ALTER TABLE IF EXISTS public."userInterest"
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
+	
+ALTER TABLE IF EXISTS public.reviewActivity
+    ADD CONSTRAINT "activityId" FOREIGN KEY ("activityId")
+    REFERENCES public.activities ("activityId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.reviewActivity
+    ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
+    REFERENCES public."user" ("userId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+	
+ALTER TABLE IF EXISTS public."reviewUser"
+    ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
+    REFERENCES public."user" ("userId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public."reviewUser"
+    ADD CONSTRAINT "reviewerId" FOREIGN KEY ("reviewerId")
+    REFERENCES public."user" ("userId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 END;
 
@@ -241,7 +301,9 @@ insert into "user" values
 (nextval('users_sequence'), 'NewUser', 'asdfsda@email.com', 'user', 'fd43DDSfgFDJkmAF43','Other', '2020-09-27', 2, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Mbappe', 's77777@email.com', 'user', '12sfdSDww232trhy3DDSfgFDJkmAF43','NotApplicable', '2020-09-27', 1, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 1, 'phone','line',now(),now());
+(nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 1, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'chic', 'chickenforregis1@gmail.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'ph', 'chumphu.phumin@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now());
 
 insert into "categories" values
 (nextval('categories_sequence'), 'Football', '22 players 11 each team'),
@@ -273,3 +335,11 @@ insert into "userInterest" values
 insert into "notification" values
 (nextval('notifications_sequence'), 1, true, 'join', 'asdfadsfasdfasd', now()),
 (nextval('notifications_sequence'), 2, false, 'leave', '23213', now());
+
+insert into "reviewActivity" values
+(nextval('reviews_activity_sequence'), 1, 1, 5, 'comment', now()),
+(nextval('reviews_activity_sequence'), 2, 6, 5, 'comment2', now());
+
+insert into "reviewUser" values
+(nextval('reviews_user_sequence'), 1, 2, 'comment3', now()),
+(nextval('reviews_user_sequence'), 4, 3, 'comment4', now());
