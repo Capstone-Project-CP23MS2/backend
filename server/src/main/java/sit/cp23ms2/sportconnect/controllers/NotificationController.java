@@ -25,9 +25,10 @@ public class NotificationController {
     @GetMapping
     public PageNotificationDto getNotification(@RequestParam(defaultValue = "0") int page,
                                                @RequestParam(defaultValue = "10") int pageSize,
-                                               @RequestParam(defaultValue = "notificationId") String sortBy) {
+                                               @RequestParam(defaultValue = "notificationId") String sortBy,
+                                               @RequestParam(required = false) Integer targetId) {
 
-        return notificationService.getNotification(page, pageSize, sortBy);
+        return notificationService.getNotification(page, pageSize, sortBy, targetId);
 
     }
 

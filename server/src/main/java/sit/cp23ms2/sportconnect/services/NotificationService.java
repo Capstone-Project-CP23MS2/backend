@@ -28,10 +28,10 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
 
-    public PageNotificationDto getNotification(int pageNum, int pageSize, String sortBy) {
-        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
-        Pageable pageRequest = PageRequest.of(pageNum, pageSize, sort);
-        Page<Notification> listNotifications = repository.findAll(pageRequest);
+    public PageNotificationDto getNotification(int pageNum, int pageSize, String sortBy, Integer targetId) {
+        //Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageRequest = PageRequest.of(pageNum, pageSize);
+        Page<Notification> listNotifications = repository.findAllNotifications(pageRequest, targetId);
         PageNotificationDto pageNotificationDto = modelMapper.map(listNotifications, PageNotificationDto.class);
         return pageNotificationDto;
     }

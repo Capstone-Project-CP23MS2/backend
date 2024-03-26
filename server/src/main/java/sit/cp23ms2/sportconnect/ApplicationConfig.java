@@ -7,6 +7,9 @@ import sit.cp23ms2.sportconnect.dtos.activity_participants.ActivityParticipantsD
 import sit.cp23ms2.sportconnect.dtos.location.LocationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
 import sit.cp23ms2.sportconnect.dtos.request.RequestDto;
+import sit.cp23ms2.sportconnect.dtos.review_activity.ReviewActivityDto;
+import sit.cp23ms2.sportconnect.dtos.review_user.CreateReviewUserDto;
+import sit.cp23ms2.sportconnect.dtos.review_user.ReviewUserDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.InterestDto;
 import sit.cp23ms2.sportconnect.entities.*;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
@@ -57,6 +60,18 @@ public class ApplicationConfig implements WebMvcConfigurer {
                 map().setUserId(source.getUser().getUserId());
                 map().setEmail(source.getUser().getEmail());
                 map().setCategoryName(source.getCategory().getName());
+            }
+        });
+        modelMapper.addMappings(new PropertyMap<ReviewUser, ReviewUserDto>() {
+            protected void configure() {
+                map().setUserId(source.getUser().getUserId());
+                map().setReviewerId(source.getReviewer().getUserId());
+            }
+        });
+        modelMapper.addMappings(new PropertyMap<ReviewActivity, ReviewActivityDto>() {
+            protected void configure() {
+                map().setActivityId(source.getActivity().getActivityId());
+                map().setUserId(source.getUser().getUserId());
             }
         });
         return modelMapper;
