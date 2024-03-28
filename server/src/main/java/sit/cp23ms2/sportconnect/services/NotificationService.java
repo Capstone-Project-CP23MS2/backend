@@ -37,6 +37,7 @@ public class NotificationService {
     }
 
     public Notification getById(Integer id) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Notification notification = repository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification: " + id + " Not Found"));
         return notification;
