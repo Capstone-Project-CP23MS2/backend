@@ -39,6 +39,8 @@ public class UserDto {
 //        Gender.fromEnum()
 //    }
 
+    private Set<Category> userInterests;
+
     @JsonIgnore
     private Set<Activity> userActivities = new HashSet<>();
 }

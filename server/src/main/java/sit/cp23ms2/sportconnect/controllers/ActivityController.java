@@ -83,10 +83,7 @@ public class ActivityController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (HttpClientErrorException.UnsupportedMediaType e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage() + " Invalid Data Format");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage() + " Internal Server Error");
         }
-
     }
 
     @DeleteMapping("/{id}")
