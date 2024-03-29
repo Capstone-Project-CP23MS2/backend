@@ -100,7 +100,7 @@ public class UserService {
         if(!isCurrentUserHost(user))
             throw new ForbiddenException("You're not allowed to edit this user");
         User updatedUser = mapUser(user, updateUserDto);
-        if(updatedUser.getUserInterests() != null)
+        if(updateUserDto.getUserInterests() != null)
             mapInterests(updatedUser, updateUserDto);
         return modelMapper.map(repository.saveAndFlush(updatedUser), UserDto.class);
     }

@@ -13,5 +13,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             value = "SELECT * FROM \"notification\" WHERE (\"targetId\" = :targetId OR :targetId IS NULL) ORDER BY \"createdAt\" DESC",nativeQuery = true
     )
     public Page<Notification> findAllNotifications(Pageable pageable, Integer targetId);
-    
+
 }
