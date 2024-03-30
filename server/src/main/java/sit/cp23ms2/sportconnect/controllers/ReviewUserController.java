@@ -8,11 +8,9 @@ import sit.cp23ms2.sportconnect.dtos.notification.CreateNotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.PageNotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.UpdateNotificationDto;
-import sit.cp23ms2.sportconnect.dtos.review_user.CreateReviewUserDto;
-import sit.cp23ms2.sportconnect.dtos.review_user.PageReviewUserDto;
-import sit.cp23ms2.sportconnect.dtos.review_user.ReviewUserDto;
-import sit.cp23ms2.sportconnect.dtos.review_user.UpdateReviewUserDto;
+import sit.cp23ms2.sportconnect.dtos.review_user.*;
 import sit.cp23ms2.sportconnect.entities.ReviewUser;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.NotificationService;
 import sit.cp23ms2.sportconnect.services.ReviewUserService;
 
@@ -39,22 +37,37 @@ public class ReviewUserController {
 
     @GetMapping("/{id}")
     public ReviewUserDto getById(@PathVariable Integer id) {
-        return modelMapper.map(reviewUserService.getById(id), ReviewUserDto.class) ;
+        ReviewUser reviewUser = reviewUserService.getById(id);
+        CustomReviewUserDto userReviewedObj = modelMapper.map(reviewUser.getUser(), CustomReviewUserDto.class);
+        CustomReviewUserDto reviewerObj = modelMapper.map(reviewUser.getReviewer(), CustomReviewUserDto.class);
+
+        ReviewUserDto reviewUserDto = modelMapper.map(reviewUser, ReviewUserDto.class);
+        reviewUserDto.setUserReviewed(userReviewedObj);
+        reviewUserDto.setReviewer(reviewerObj);
+        return reviewUserDto;
     }
 
     @PostMapping
-    public ReviewUserDto createReviewUser(@Valid @ModelAttribute CreateReviewUserDto createReviewUserDto) {
-        return modelMapper.map(reviewUserService.Create(createReviewUserDto), ReviewUserDto.class);
+    public ReviewUserDto createReviewUser(@Valid @ModelAttribute CreateReviewUserDto createReviewUserDto) throws ForbiddenException {
+        //return modelMapper.map(reviewUserService.Create(createReviewUserDto), ReviewUserDto.class);
+        ReviewUser reviewUser = reviewUserService.Create(createReviewUserDto);
+        CustomReviewUserDto userReviewedObj = modelMapper.map(reviewUser.getUser(), CustomReviewUserDto.class);
+        CustomReviewUserDto reviewerObj = modelMapper.map(reviewUser.getReviewer(), CustomReviewUserDto.class);
+
+        ReviewUserDto reviewUserDto = modelMapper.map(reviewUser, ReviewUserDto.class);
+        reviewUserDto.setUserReviewed(userReviewedObj);
+        reviewUserDto.setReviewer(reviewerObj);
+        return reviewUserDto;
     }
 
     @PatchMapping("/{id}")
     public ReviewUserDto update(@Valid @ModelAttribute UpdateReviewUserDto updateReviewUserDto,
-                                  @PathVariable Integer id) {
+                                  @PathVariable Integer id) throws ForbiddenException {
         return reviewUserService.update(updateReviewUserDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) throws ForbiddenException {
         reviewUserService.delete(id);
     }
 }

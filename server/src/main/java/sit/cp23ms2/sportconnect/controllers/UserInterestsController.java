@@ -8,6 +8,7 @@ import sit.cp23ms2.sportconnect.dtos.user_interests.CreateInterestBatchDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.CreateInterestDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.InterestDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.PageInterestDto;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.UserInterestsService;
 
 import javax.validation.Valid;
@@ -34,17 +35,17 @@ public class UserInterestsController {
     }
 
     @PostMapping
-    public InterestDto createInterest(@Valid @ModelAttribute CreateInterestDto createInterestDto) {
+    public InterestDto createInterest(@Valid @ModelAttribute CreateInterestDto createInterestDto) throws ForbiddenException {
         return modelMapper.map(userInterestsService.create(createInterestDto), InterestDto.class);
     }
 
     @PostMapping("/create")
-    public List<InterestDto> createInterest(@Valid @ModelAttribute CreateInterestBatchDto createInterestDto) {
+    public List<InterestDto> createInterest(@Valid @ModelAttribute CreateInterestBatchDto createInterestDto) throws ForbiddenException {
         return userInterestsService.createBatch(createInterestDto);
     }
 
     @DeleteMapping("/{userId}/{categoryId}")
-    public void delete(@PathVariable Integer userId, @PathVariable Integer categoryId) {
+    public void delete(@PathVariable Integer userId, @PathVariable Integer categoryId) throws ForbiddenException {
         userInterestsService.delete(userId, categoryId);
     }
 }

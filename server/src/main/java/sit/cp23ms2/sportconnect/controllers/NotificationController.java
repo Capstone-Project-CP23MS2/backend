@@ -9,6 +9,7 @@ import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.PageNotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.UpdateNotificationDto;
 import sit.cp23ms2.sportconnect.entities.Notification;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.NotificationService;
 
 import javax.validation.Valid;
@@ -44,12 +45,12 @@ public class NotificationController {
 
     @PatchMapping("/{id}")
     public NotificationDto update(@Valid @ModelAttribute UpdateNotificationDto updateNotificationDto,
-                                  @PathVariable Integer id) {
+                                  @PathVariable Integer id) throws ForbiddenException {
         return notificationService.update(updateNotificationDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) throws ForbiddenException {
         notificationService.delete(id);
     }
 }

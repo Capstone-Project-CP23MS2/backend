@@ -67,8 +67,8 @@ public class ActivityService {
             System.out.println(title);
         }
         Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
-            //set category name in dto
             ActivityDto activityDto = modelMapper.map(activity, ActivityDto.class);
+            //set category name in dto
             activityDto.setCategoryName(activity.getCategoryId().getName());
             //set users_activities in dto with custom field
             Set<CustomUserActivityDto> userSets = activity.getUsers().stream().map(user -> {
