@@ -303,12 +303,35 @@ insert into "user" values
 (nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 1, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'chic', 'chickenforregis1@gmail.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Big', 'poorachad2545@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'ph', 'chumphu.phumin@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now());
 
 insert into "categories" values
 (nextval('categories_sequence'), 'Football', '22 players 11 each team'),
 (nextval('categories_sequence'), 'Volleyball', '6 players Volleyball'),
-(nextval('categories_sequence'), 'Tennis', '1v1 Tennis');
+(nextval('categories_sequence'), 'Tennis', '1v1 Tennis'),
+(nextval('categories_sequence'), 'Basketball', '5 players each team'),
+(nextval('categories_sequence'), 'Baseball', '9 players each team'),
+(nextval('categories_sequence'), 'Cricket', '11 players each team'),
+(nextval('categories_sequence'), 'Rugby', '15 players each team'),
+(nextval('categories_sequence'), 'American Football', '11 players each team'),
+(nextval('categories_sequence'), 'Ice Hockey', '6 players each team'),
+(nextval('categories_sequence'), 'Golf', 'Individual'),
+(nextval('categories_sequence'), 'Swimming', 'Individual'),
+(nextval('categories_sequence'), 'Running', 'Individual'),
+(nextval('categories_sequence'), 'Cycling', 'Individual'),
+(nextval('categories_sequence'), 'Boxing', '2 boxers'),
+(nextval('categories_sequence'), 'Wrestling', '2 wrestlers'),
+(nextval('categories_sequence'), 'Judo', '2 judokas'),
+(nextval('categories_sequence'), 'Taekwondo', '2 taekwondoists'),
+(nextval('categories_sequence'), 'Fencing', '2 fencers'),
+(nextval('categories_sequence'), 'Table Tennis', '2 players'),
+(nextval('categories_sequence'), 'Badminton', '2 players'),
+(nextval('categories_sequence'), 'Squash', '2 players'),
+(nextval('categories_sequence'), 'Tennis Doubles', '2 teams of 2 players'),
+(nextval('categories_sequence'), 'Mixed Doubles Tennis', '1 male and 1 female player'),
+(nextval('categories_sequence'), 'Volleyball Beach', '2 teams of 2 players'),
+(nextval('categories_sequence'), 'Water Polo', '7 players each team');
 
 insert into "activities" values
 (nextval('activities_sequence'), 1, 1, 'Football Party', 'Description', 2, now(), 40, now(), now(), 22),
