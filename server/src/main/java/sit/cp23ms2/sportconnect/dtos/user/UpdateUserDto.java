@@ -19,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserDto {
-    @Size(max = 40, message = "size must be within 40")
+
     private String username;
 
     private String profilePicture;
@@ -30,10 +30,10 @@ public class UpdateUserDto {
 
     private String dateOfBirth;
 
-    @Size(max = 10, message = "size must be within 10")
+
     private String phoneNumber;
 
-    @Size(max = 24, message = "size must be within 24")
+
     private String lineId;
 
     private Set<Integer> userInterests;

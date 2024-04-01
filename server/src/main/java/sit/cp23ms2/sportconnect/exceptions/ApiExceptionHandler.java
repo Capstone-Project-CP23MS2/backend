@@ -33,7 +33,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         });
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         ApiException apiException = new ApiException(
-                "Event attributes validation failed!",
+                "Attributes validation failed!",
                 badRequest,
                 ZonedDateTime.now(ZoneId.of("Z")),
                 errors

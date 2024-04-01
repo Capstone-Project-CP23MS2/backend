@@ -47,8 +47,9 @@ public class RequestController {
 
     @PatchMapping("/{activityId}_{userId}")
     public RequestDto updateRequest(@Valid @RequestBody UpdateRequestDto updateRequestDto,
-                              @PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException {
-        return requestService.update(updateRequestDto, activityId, userId);
+                              @PathVariable Integer activityId,
+                                    @PathVariable Integer userId, BindingResult result) throws ForbiddenException, MethodArgumentNotValidException {
+        return requestService.update(updateRequestDto, activityId, userId, result);
     }
 
     @DeleteMapping("/{activityId}_{userId}")

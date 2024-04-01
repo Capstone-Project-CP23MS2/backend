@@ -8,6 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 import sit.cp23ms2.sportconnect.dtos.notification.CreateNotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
@@ -33,6 +36,9 @@ public class NotificationService {
     @Autowired
     private AuthenticationUtil authenticationUtil;
 
+    final private FieldError messageErrorObj = new FieldError("updateNotificationDto",
+            "message", "Message size must not over 50");
+
     public PageNotificationDto getNotification(int pageNum, int pageSize, String sortBy, Integer targetId) {
         //Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
@@ -48,7 +54,9 @@ public class NotificationService {
         return notification;
     }
 
-    public Notification Create(CreateNotificationDto newNotification) {
+    public Notification Create(CreateNotificationDto newNotification, BindingResult result) throws MethodArgumentNotValidException {
+        System.out.println(result.hasErrors());
+        if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         User user = userRepository.findById(newNotification.getTargetId()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification: " + newNotification.getTargetId() + " Not Found"));
         Notification notification = modelMapper.map(newNotification, Notification.class);
@@ -57,7 +65,13 @@ public class NotificationService {
         return notification;
     }
 
-    public NotificationDto update(UpdateNotificationDto updateNotification, Integer id) throws ForbiddenException{
+    public NotificationDto update(UpdateNotificationDto updateNotification, Integer id, BindingResult result) throws ForbiddenException, MethodArgumentNotValidException {
+        if(updateNotification.getMessage() != null) {
+            if(updateNotification.getMessage().length() > 50)
+                result.addError(messageErrorObj);
+        }
+        System.out.println(result.hasErrors());
+        if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         Notification notification = getById(id);
         if(!isCurrentUserHostNoti(notification))
             throw new ForbiddenException("You're now allowed to edit this Notification !");

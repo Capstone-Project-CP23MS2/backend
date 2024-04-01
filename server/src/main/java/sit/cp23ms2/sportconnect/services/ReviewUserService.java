@@ -8,6 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
 import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
@@ -38,6 +41,9 @@ public class ReviewUserService {
     @Autowired
     private AuthenticationUtil authenticationUtil;
 
+    final private FieldError messageSizeErrorObj = new FieldError("updateReviewUserDto",
+            "message", "Message size must not over 255");
+
     public PageReviewUserDto getReviewUser(int pageNum, int pageSize, String sortBy, Integer userId) {
         //Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
@@ -60,7 +66,9 @@ public class ReviewUserService {
         return review;
     }
 
-    public ReviewUser Create(CreateReviewUserDto newReview) throws ForbiddenException {
+    public ReviewUser Create(CreateReviewUserDto newReview, BindingResult result) throws ForbiddenException, MethodArgumentNotValidException {
+
+        if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         if(!isCurrentUserGoingToBeReviewer(newReview))
             throw new ForbiddenException("You're not allowed to create Review since you're not the reviewer of this review !");
         User user = userRepository.findById(newReview.getUserId()).orElseThrow(() ->
@@ -76,7 +84,13 @@ public class ReviewUserService {
         return review;
     }
 
-    public ReviewUserDto update(UpdateReviewUserDto updateReview, Integer id) throws ForbiddenException {
+    public ReviewUserDto update(UpdateReviewUserDto updateReview, Integer id, BindingResult result) throws
+            ForbiddenException, MethodArgumentNotValidException {
+        if(updateReview.getComment() != null) {
+            if(updateReview.getComment().length() > 255)
+                result.addError(messageSizeErrorObj);
+        }
+        if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         ReviewUser review = getById(id);
         if(!isCurrentUserHostReview(review))
             throw new ForbiddenException("You're not allowed to edit this Review since you're not the reviewer of this review !");

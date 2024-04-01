@@ -3,6 +3,8 @@ package sit.cp23ms2.sportconnect.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import sit.cp23ms2.sportconnect.dtos.notification.CreateNotificationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
@@ -48,9 +50,10 @@ public class ReviewUserController {
     }
 
     @PostMapping
-    public ReviewUserDto createReviewUser(@Valid @ModelAttribute CreateReviewUserDto createReviewUserDto) throws ForbiddenException {
+    public ReviewUserDto createReviewUser(@Valid @ModelAttribute CreateReviewUserDto createReviewUserDto, BindingResult result)
+            throws ForbiddenException, MethodArgumentNotValidException {
         //return modelMapper.map(reviewUserService.Create(createReviewUserDto), ReviewUserDto.class);
-        ReviewUser reviewUser = reviewUserService.Create(createReviewUserDto);
+        ReviewUser reviewUser = reviewUserService.Create(createReviewUserDto, result);
         CustomReviewUserDto userReviewedObj = modelMapper.map(reviewUser.getUser(), CustomReviewUserDto.class);
         CustomReviewUserDto reviewerObj = modelMapper.map(reviewUser.getReviewer(), CustomReviewUserDto.class);
 
@@ -62,8 +65,8 @@ public class ReviewUserController {
 
     @PatchMapping("/{id}")
     public ReviewUserDto update(@Valid @ModelAttribute UpdateReviewUserDto updateReviewUserDto,
-                                  @PathVariable Integer id) throws ForbiddenException {
-        return reviewUserService.update(updateReviewUserDto, id);
+                                @PathVariable Integer id, BindingResult result) throws ForbiddenException, MethodArgumentNotValidException {
+        return reviewUserService.update(updateReviewUserDto, id, result);
     }
 
     @DeleteMapping("/{id}")

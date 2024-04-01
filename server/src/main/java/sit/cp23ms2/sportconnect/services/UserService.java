@@ -48,6 +48,12 @@ public class UserService {
             "username", "Username already used");
     final private FieldError emailErrorObj = new FieldError("createUserDto",
             "email", "Email already used");
+    final private FieldError usernameSizeErrorObj = new FieldError("updateUserDto",
+            "username", "Username size must be within 40");
+    final private FieldError phoneNumErrorObj = new FieldError("updateUserDto",
+            "phoneNumber", "Phone Number size must be within 10");
+    final private FieldError lineIdErrorObj = new FieldError("updateUserDto",
+            "lineId", "Line ID size must be within 24");
 
     public PageUserDto getUser(int pageNum, int pageSize, String sortBy, String email) throws ApiNotFoundException {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
@@ -93,7 +99,23 @@ public class UserService {
         return modelMapper.map(createdUser, UserDetailDto.class);
     }
 
-    public UserDto update(UpdateUserDto updateUserDto, Integer id) throws ForbiddenException, ParseException {
+    public UserDto update(UpdateUserDto updateUserDto, Integer id, BindingResult result) throws ForbiddenException, ParseException, MethodArgumentNotValidException {
+        if(updateUserDto.getUsername() != null) {
+            if(updateUserDto.getUsername().length() > 40)
+                result.addError(usernameSizeErrorObj);
+            if(repository.existsByUsernameAndUserIdNot(updateUserDto.getUsername(), id))
+                result.addError(nameErrorObj);
+        }
+        if(updateUserDto.getPhoneNumber() != null) {
+            if(updateUserDto.getPhoneNumber().length() > 10)
+                result.addError(phoneNumErrorObj);
+        }
+        if(updateUserDto.getLineId() != null) {
+            if(updateUserDto.getLineId().length() > 24)
+                result.addError(lineIdErrorObj);
+        }
+
+        if(result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         User user = repository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "User " + id + " does not exist !"));

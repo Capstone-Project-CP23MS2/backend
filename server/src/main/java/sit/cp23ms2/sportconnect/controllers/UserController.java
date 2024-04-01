@@ -64,8 +64,10 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto update(@Valid @ModelAttribute UpdateUserDto updateUserDto, @PathVariable Integer id) throws ForbiddenException, ParseException {
-        return userService.update(updateUserDto, id);
+    public UserDto update(@Valid @ModelAttribute UpdateUserDto updateUserDto,
+                          @PathVariable Integer id, BindingResult result) throws ForbiddenException,
+            ParseException, MethodArgumentNotValidException {
+        return userService.update(updateUserDto, id, result);
     }
 
     @DeleteMapping("/{id}")
