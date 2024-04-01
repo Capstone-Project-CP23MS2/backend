@@ -40,6 +40,7 @@ public class UserDto {
 //    }
 
     private Set<Category> userInterests;
+    private Location location;
 
     @JsonIgnore
     private Set<Activity> userActivities = new HashSet<>();

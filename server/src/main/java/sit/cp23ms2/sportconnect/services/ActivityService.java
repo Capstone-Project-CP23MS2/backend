@@ -55,6 +55,10 @@ public class ActivityService {
     //nameError
     final private FieldError titleErrorObj = new FieldError("createActivityDto",
             "title", "Title already used in other Activity now! Please use other title");
+    final private FieldError titleErrorObj2 = new FieldError("updateActivityDto",
+            "title", "Title already used in other Activity now! Please use other title");
+    final private FieldError titleSizeErrorObj = new FieldError("updateActivityDto",
+            "title", "Title size must not over 100");
 
     public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title) {
         //Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
@@ -67,8 +71,8 @@ public class ActivityService {
             System.out.println(title);
         }
         Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
-            //set category name in dto
             ActivityDto activityDto = modelMapper.map(activity, ActivityDto.class);
+            //set category name in dto
             activityDto.setCategoryName(activity.getCategoryId().getName());
             //set users_activities in dto with custom field
             Set<CustomUserActivityDto> userSets = activity.getUsers().stream().map(user -> {
@@ -122,8 +126,10 @@ public class ActivityService {
             throw new ForbiddenException("You're not allowed to edit this activity");
         if(updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) {
             if(repository.existsByTitleAndActivityIdNot(updateActivity.getTitle(), id)) { //Check duplicate title
-                result.addError(titleErrorObj);
+                result.addError(titleErrorObj2);
             }
+            if(updateActivity.getTitle().length() > 100)
+                result.addError(titleSizeErrorObj);
         }
 
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);

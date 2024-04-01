@@ -119,8 +119,8 @@ public class JwtUtil {
 //        System.out.println(userDetails.getUsername());
        // System.out.println(email.equals(userDetails.getUsername()));
         //System.out.println(!isTokenExpireOrNot(token));
-        return (email.equals(userDetails.getUsername()) && !isTokenExpireOrNot(token));
-        //return email.equals(userDetails.getUsername());
+        //return (email.equals(userDetails.getUsername()) && !isTokenExpireOrNot(token));
+        return email.equals(userDetails.getUsername());
 //        try {
 //            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
 //            return true;

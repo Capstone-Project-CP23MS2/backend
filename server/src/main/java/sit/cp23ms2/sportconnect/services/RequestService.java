@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 import sit.cp23ms2.sportconnect.dtos.request.CreateRequestDto;
@@ -40,6 +41,9 @@ public class RequestService {
     @Autowired
     private AuthenticationUtil authenticationUtil;
 
+    final private FieldError messageSizeErrorObj = new FieldError("updateRequestDto",
+            "message", "Message size must not over 100 characters");
+
     public PageRequestDto getRequest(int pageNum, int pageSize, Integer activityId, Integer userId) {
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
         if(activityId != null || userId != null) {
@@ -64,6 +68,7 @@ public class RequestService {
 
     public ResponseEntity<?> createRequest(CreateRequestDto newRequest, BindingResult result)
             throws MethodArgumentNotValidException, ApiNotFoundException, ForbiddenException {
+        if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         boolean isThereActivity = activityRepository.existsById(newRequest.getActivityId());
         boolean isThereUser = userRepository.existsById(newRequest.getUserId());
         if(!isCurrentUserWillBeOwnRequest(newRequest))
@@ -84,7 +89,13 @@ public class RequestService {
         return new ResponseEntity<RequestDto>(modelMapper.map(createdRequest, RequestDto.class), HttpStatus.CREATED);
     }
 
-    public RequestDto update(UpdateRequestDto updateRequest, Integer activityId, Integer userId) throws ForbiddenException {
+    public RequestDto update(UpdateRequestDto updateRequest, Integer activityId, Integer userId,
+                             BindingResult result) throws ForbiddenException, MethodArgumentNotValidException {
+        if(updateRequest.getMessage() != null) {
+            if(updateRequest.getMessage().length() > 100)
+                result.addError(messageSizeErrorObj);
+        }
+        if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         Request existingRequest = repository.findByActivityActivityIdAndUser_UserId(activityId, userId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Request of Activity ID: " + activityId + " and User ID: " + userId + "does not exist !"));

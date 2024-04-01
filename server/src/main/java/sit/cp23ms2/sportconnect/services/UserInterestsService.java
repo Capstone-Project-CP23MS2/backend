@@ -13,12 +13,15 @@ import sit.cp23ms2.sportconnect.dtos.user_interests.CreateInterestBatchDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.CreateInterestDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.InterestDto;
 import sit.cp23ms2.sportconnect.dtos.user_interests.PageInterestDto;
+import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
 import sit.cp23ms2.sportconnect.entities.Category;
 import sit.cp23ms2.sportconnect.entities.User;
 import sit.cp23ms2.sportconnect.entities.UserInterest;
+import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.CategoryRepository;
 import sit.cp23ms2.sportconnect.repositories.UserInterestRepository;
 import sit.cp23ms2.sportconnect.repositories.UserRepository;
+import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 import sit.cp23ms2.sportconnect.utils.ListMapper;
 
 import java.util.ArrayList;
@@ -37,6 +40,8 @@ public class UserInterestsService {
     CategoryRepository categoryRepository;
     @Autowired
     ListMapper listMapper;
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
 
     public PageInterestDto getAllUserInterests(int pageNum, int pageSize) {
 
@@ -52,7 +57,9 @@ public class UserInterestsService {
         return userInterest;
     }
 
-    public UserInterest create(CreateInterestDto newInterest) {
+    public UserInterest create(CreateInterestDto newInterest) throws ForbiddenException {
+        if(!isCurrentGoingToOwnThisInterest(newInterest))
+            throw new ForbiddenException("You're not allowed to create this Interest since you're not this user");
         User user = userRepository.findById(newInterest.getUserId()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: " + newInterest.getUserId() + " Not Found"));
         Category category = categoryRepository.findById(newInterest.getCategoryId()).orElseThrow(() ->
@@ -61,7 +68,9 @@ public class UserInterestsService {
         return repository.saveAndFlush(userInterest);
     }
 
-    public List<InterestDto> createBatch(CreateInterestBatchDto newInterest) {
+    public List<InterestDto> createBatch(CreateInterestBatchDto newInterest) throws ForbiddenException {
+        if(!isCurrentGoingToOwnThisInterest_(newInterest))
+            throw new ForbiddenException("You're not allowed to create this Interest since you're not this user");
         User user = userRepository.findById(newInterest.getUserId()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: " + newInterest.getUserId() + " Not Found"));
 //        Category category = categoryRepository.findById(newInterest.getCategoryId()).orElseThrow(() ->
@@ -79,8 +88,38 @@ public class UserInterestsService {
         return listMapper.mapList(userInterests, InterestDto.class, modelMapper);
     }
 
-    public void delete(Integer userId, Integer categoryId) {
+    public void delete(Integer userId, Integer categoryId) throws ForbiddenException {
         UserInterest userInterest = getById(userId, categoryId);
+        if(!isCurrentUserHost(userInterest))
+            throw new ForbiddenException("You're not allowed to delete other interest");
         repository.deleteByUser_UserIdAndCategory_CategoryId(userId, categoryId);
+    }
+
+    private boolean isCurrentUserHost(UserInterest userInterest) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return userInterest.getUser().getUserId() == currentAuthId;
+
+        }
+    }
+    private boolean isCurrentGoingToOwnThisInterest(CreateInterestDto createInterestDto) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return createInterestDto.getUserId() == currentAuthId;
+
+        }
+    }
+    private boolean isCurrentGoingToOwnThisInterest_(CreateInterestBatchDto createInterestBatchDto) {
+        if(authenticationUtil.getCurrentAuthenticationRole().equals("[ROLE_admin]")) {
+            return true;
+        } else {
+            Integer currentAuthId = authenticationUtil.getCurrentAuthenticationUserId();
+            return createInterestBatchDto.getUserId() == currentAuthId;
+
+        }
     }
 }

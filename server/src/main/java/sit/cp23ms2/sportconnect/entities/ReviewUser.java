@@ -1,11 +1,14 @@
 package sit.cp23ms2.sportconnect.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,4 +35,6 @@ public class ReviewUser {
     @Column(name = "createdAt")
     @CreationTimestamp
     private Instant createdAt;
+
+
 }

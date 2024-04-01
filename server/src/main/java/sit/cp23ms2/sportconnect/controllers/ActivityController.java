@@ -74,16 +74,17 @@ public class ActivityController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateActivity(@Valid @ModelAttribute UpdateActivityDto updateActivityDto,
+    public ActivityDto updateActivity(@Valid @ModelAttribute UpdateActivityDto updateActivityDto,
                                       @PathVariable Integer id, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
 
-        try {
-            return ResponseEntity.ok(activityService.update(updateActivityDto, id, result));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (HttpClientErrorException.UnsupportedMediaType e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage() + " Invalid Data Format");
-        }
+//        try {
+//            return ResponseEntity.ok(activityService.update(updateActivityDto, id, result));
+//        } catch (DataIntegrityViolationException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        } catch (HttpClientErrorException.UnsupportedMediaType e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage() + " Invalid Data Format");
+//        }
+        return activityService.update(updateActivityDto, id, result);
     }
 
     @DeleteMapping("/{id}")

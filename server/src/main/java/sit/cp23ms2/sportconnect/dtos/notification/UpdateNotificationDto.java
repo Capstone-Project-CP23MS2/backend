@@ -9,6 +9,7 @@ import sit.cp23ms2.sportconnect.utils.ValueOfEnum;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class UpdateNotificationDto {
     @Enumerated(EnumType.STRING)
     @ValueOfEnum(enumClass = NotificationType.class)
     private String type;
+
 
     private String message;
 }

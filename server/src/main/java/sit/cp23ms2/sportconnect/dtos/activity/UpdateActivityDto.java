@@ -17,8 +17,9 @@ public class UpdateActivityDto {
 
     private Integer categoryId;
 
-    @Size(max = 100, message = "size must not over 100")
+
     private String title;
+
     private String description;
 
 

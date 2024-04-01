@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             @Param("email") String email
     );
 
+    public boolean existsByUsernameAndUserIdNot(String username, Integer id);
     public boolean existsByUsername(String username);
 
     public boolean existsByEmail(String email);
