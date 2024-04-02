@@ -293,7 +293,10 @@ END;
 -- INSERT DATA
 insert into "location" values
 (nextval('locations_sequence'), 'Bangkok', 21.124325, 21.1111111),
-(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11);
+(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11),
+(nextval('locations_sequence'), 'KMUTT', 13.6512522, 100.494061),
+(nextval('locations_sequence'), 'The Nine Center', 13.7414219, 100.6199585);
+(nextval('locations_sequence'), 'Siam Paragon', 13.7457749, 100.5318268);
 
 insert into "user" values
 (nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),
@@ -311,10 +314,10 @@ insert into "categories" values
 (nextval('categories_sequence'), 'Tennis', '1v1 Tennis');
 
 insert into "activities" values
-(nextval('activities_sequence'), 1, 1, 'Football Party', 'Description', 2, now(), 40, now(), now(), 22),
-(nextval('activities_sequence'), 2, 1, 'Football After Class', 'DescriptionZ', 1, now(), 100, now(), now(), 22),
-(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 2, now(), 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 1, now(), 100, now(), now(), 12);
+(nextval('activities_sequence'), 1, 1, 'Football Party', 'Welcome to football party', 3, now(), 40, now(), now(), 22),
+(nextval('activities_sequence'), 2, 1, 'Football After Class', 'join use to play football after class', 4, now(), 100, now(), now(), 22),
+(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 5, now(), 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, now(), 100, now(), now(), 12);
 
 insert into "activityParticipants" values
 (1, 1, 'ready', now()),
