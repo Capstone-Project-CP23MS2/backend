@@ -295,7 +295,7 @@ insert into "location" values
 (nextval('locations_sequence'), 'Bangkok', 21.124325, 21.1111111),
 (nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11),
 (nextval('locations_sequence'), 'KMUTT', 13.6512522, 100.494061),
-(nextval('locations_sequence'), 'The Nine Center', 13.7414219, 100.6199585);
+(nextval('locations_sequence'), 'The Nine Center', 13.7414219, 100.6199585),
 (nextval('locations_sequence'), 'Siam Paragon', 13.7457749, 100.5318268);
 
 insert into "user" values
