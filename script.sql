@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS "userInterest" CASCADE;
 DROP TABLE IF EXISTS "location" CASCADE;
 DROP TABLE IF EXISTS "reviewActivity" CASCADE;
 DROP TABLE IF EXISTS "reviewUser" CASCADE;
+DROP TABLE IF EXISTS "file" CASCADE;
 
 DROP TYPE IF EXISTS gender_user;
 DROP TYPE IF EXISTS status_participant;
@@ -31,6 +32,7 @@ DROP SEQUENCE IF EXISTS notifications_sequence;
 DROP SEQUENCE IF EXISTS locations_sequence;
 DROP SEQUENCE IF EXISTS reviews_activity_sequence;
 DROP SEQUENCE IF EXISTS reviews_user_sequence;
+DROP SEQUENCE IF EXISTS files_sequence;
 
 CREATE SEQUENCE users_sequence START 1;
 CREATE SEQUENCE activities_sequence START 1;
@@ -39,6 +41,7 @@ CREATE SEQUENCE notifications_sequence START 1;
 CREATE SEQUENCE locations_sequence START 1;
 CREATE SEQUENCE reviews_activity_sequence START 1;
 CREATE SEQUENCE reviews_user_sequence START 1;
+CREATE SEQUENCE files_sequence START 1;
 
 
 CREATE TABLE IF NOT EXISTS public.activities
@@ -50,10 +53,12 @@ CREATE TABLE IF NOT EXISTS public.activities
     description text,
 	"locationId" integer NOT NULL,
     "dateTime" timestamp with time zone NOT NULL,
+-- 	"dateEnd" timestamp with time zone NOT NULL,
     duration integer NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
-	"noOfMembers" integer
+	"noOfMembers" integer,
+	"memberCounts" integer
 );
 
 CREATE TYPE gender_user AS ENUM ('Male', 'Female', 'Other', 'NotApplicable', 'Unknown');
@@ -123,11 +128,12 @@ CREATE TABLE IF NOT EXISTS public.location
     PRIMARY KEY ("locationId")
 );
 
-CREATE TYPE type_notification AS ENUM ('invite', 'join', 'leave', 'request', 'recommend', 'review', 'activity_start', 'activity_end');
+CREATE TYPE type_notification AS ENUM ('invite', 'join', 'leave', 'request', 'recommend', 'review', 'activity_start', 'activity_end', 'update_activity', 'delete_activity');
 CREATE TABLE IF NOT EXISTS public.notification
 (
     "notificationId" serial NOT NULL,
     "targetId" integer,
+	"activityId" integer,
     unread boolean,
     type character varying,
     message character varying,
@@ -161,6 +167,18 @@ CREATE TABLE IF NOT EXISTS public."reviewUser"
     comment character varying,
     "createdAt" timestamp with time zone,
     PRIMARY KEY ("reviewId")
+);
+
+CREATE TABLE IF NOT EXISTS public."file"
+(
+    "fileId" serial NOT NULL,
+    "activityId" integer,
+    "userId" integer,
+    "fileName" character varying,
+    "fileUrl" character varying,
+    "fileSize" integer,
+	"createdAt" timestamp with time zone,
+    PRIMARY KEY ("fileId")
 );
 
 ALTER TABLE IF EXISTS public."user"
@@ -242,6 +260,13 @@ ALTER TABLE IF EXISTS public.notification
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
+	
+ALTER TABLE IF EXISTS public.notification
+    ADD CONSTRAINT "activityId" FOREIGN KEY ("activityId")
+    REFERENCES public.activities ("activityId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 ALTER TABLE IF EXISTS public."userInterest"
     ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
@@ -287,13 +312,83 @@ ALTER TABLE IF EXISTS public."reviewUser"
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
+	
+ALTER TABLE IF EXISTS public."file"
+    ADD CONSTRAINT "activityId" FOREIGN KEY ("activityId")
+    REFERENCES public.activities ("activityId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public."file"
+    ADD CONSTRAINT "userId" FOREIGN KEY ("userId")
+    REFERENCES public."user" ("userId") MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 END;
+
+-- สร้างฟังก์ชันสำหรับคำนวณค่า memberCounts
+CREATE OR REPLACE FUNCTION initialize_member_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- คำนวณจำนวนสมาชิกที่มีใน activityParticipants สำหรับ activityId นี้
+    NEW."memberCounts" = (
+        SELECT COUNT(*) FROM "activityParticipants"
+        WHERE "activityId" = NEW."activityId"
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- เรียกใช้งานฟังก์ชันเพื่อตั้งค่าเริ่มต้น
+CREATE TRIGGER initialize_member_counts_trigger
+BEFORE INSERT ON "activities"
+FOR EACH ROW
+EXECUTE FUNCTION initialize_member_counts();
+
+-- สร้างฟังก์ชันเพื่อคำนวณจำนวนสมาชิก
+CREATE OR REPLACE FUNCTION update_member_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        -- คำนวณจำนวนสมาชิกที่มีใน activityParticipants สำหรับ activityId นี้
+        UPDATE activities
+        SET "memberCounts" = (
+            SELECT COUNT(*) FROM "activityParticipants"
+            WHERE "activityId" = NEW."activityId"
+        )
+        WHERE "activityId" = NEW."activityId";
+    ELSE
+        -- คำนวณจำนวนสมาชิกที่มีใน activityParticipants สำหรับ activityId นี้
+        UPDATE activities
+        SET "memberCounts" = (
+            SELECT COUNT(*) FROM "activityParticipants"
+            WHERE "activityId" = OLD."activityId"
+        )
+        WHERE "activityId" = OLD."activityId";
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- สร้าง Trigger ที่เรียกใช้งาน Trigger Function เมื่อมีการเปลี่ยนแปลงใน activityParticipants
+CREATE TRIGGER update_member_counts_trigger
+AFTER INSERT OR UPDATE OR DELETE ON "activityParticipants"
+FOR EACH ROW
+EXECUTE FUNCTION update_member_counts();
 
 -- INSERT DATA
 insert into "location" values
 (nextval('locations_sequence'), 'Bangkok', 21.124325, 21.1111111),
-(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11);
+(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11),
+(nextval('locations_sequence'), 'KMUTT', 13.6512522, 100.494061),
+(nextval('locations_sequence'), 'The Nine Center', 13.7414219, 100.6199585),
+(nextval('locations_sequence'), 'Siam Paragon', 13.7457749, 100.5318268);
 
 insert into "user" values
 (nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),
@@ -311,10 +406,10 @@ insert into "categories" values
 (nextval('categories_sequence'), 'Tennis', '1v1 Tennis');
 
 insert into "activities" values
-(nextval('activities_sequence'), 1, 1, 'Football Party', 'Description', 2, now(), 40, now(), now(), 22),
-(nextval('activities_sequence'), 2, 1, 'Football After Class', 'DescriptionZ', 1, now(), 100, now(), now(), 22),
-(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 2, now(), 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 1, now(), 100, now(), now(), 12);
+(nextval('activities_sequence'), 1, 1, 'Football Party', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 2, 1, 'Football After Class', 'join use to play football after class', 4, '2024-02-01', 100, now(), now(), 22),
+(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 5, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12);
 
 insert into "activityParticipants" values
 (1, 1, 'ready', now()),
@@ -333,8 +428,8 @@ insert into "userInterest" values
 (2, 1);
 
 insert into "notification" values
-(nextval('notifications_sequence'), 1, true, 'join', 'asdfadsfasdfasd', now()),
-(nextval('notifications_sequence'), 2, false, 'leave', '23213', now());
+(nextval('notifications_sequence'), 1, 2, true, 'join', 'asdfadsfasdfasd', now()),
+(nextval('notifications_sequence'), 2, 4, false, 'leave', '23213', now());
 
 insert into "reviewActivity" values
 (nextval('reviews_activity_sequence'), 1, 1, 5, 'comment', now()),
@@ -343,3 +438,9 @@ insert into "reviewActivity" values
 insert into "reviewUser" values
 (nextval('reviews_user_sequence'), 1, 2, 'comment3', now()),
 (nextval('reviews_user_sequence'), 4, 3, 'comment4', now());
+
+insert into "file" values
+(nextval('files_sequence'), 1, null, 'name', 'url', 1024, now()),
+(nextval('files_sequence'), 2, null, 'name2', 'url2', 2048, now()),
+(nextval('files_sequence'), null, 1, 'name', 'url', 420, now()),
+(nextval('files_sequence'), null, 2, 'name', 'url', 300, now());

@@ -4,6 +4,7 @@ import org.modelmapper.PropertyMap;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
 import sit.cp23ms2.sportconnect.dtos.activity_participants.ActivityParticipantsDto;
+import sit.cp23ms2.sportconnect.dtos.file.FileDto;
 import sit.cp23ms2.sportconnect.dtos.location.LocationDto;
 import sit.cp23ms2.sportconnect.dtos.notification.NotificationDto;
 import sit.cp23ms2.sportconnect.dtos.request.RequestDto;
@@ -54,6 +55,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
         modelMapper.addMappings(new PropertyMap<Notification, NotificationDto>() {
             protected void configure() {
                 map().setTargetId(source.getTargetId().getUserId());
+                map().setActivityId(source.getActivity().getActivityId());
             }
         });
         modelMapper.addMappings(new PropertyMap<UserInterest, InterestDto>() {
@@ -73,6 +75,12 @@ public class ApplicationConfig implements WebMvcConfigurer {
             protected void configure() {
                 map().setActivityId(source.getActivity().getActivityId());
                 map().setUserId(source.getUser().getUserId());
+            }
+        });
+        modelMapper.addMappings(new PropertyMap<File, FileDto>() {
+            protected void configure() {
+                map().setActivityId(source.getActivityFile().getActivityId());
+                map().setUserId(source.getUserFile().getUserId());
             }
         });
         return modelMapper;

@@ -27,6 +27,10 @@ public class Notification {
     @JoinColumn(name = "targetId")
     private User targetId;
 
+    @ManyToOne
+    @JoinColumn(name = "activityId")
+    private Activity activity;
+
     @Column(name = "unread")
     private Boolean unRead;
 

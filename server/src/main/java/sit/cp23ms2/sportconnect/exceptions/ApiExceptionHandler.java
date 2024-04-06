@@ -78,10 +78,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = BadRequestException.class)
-    public ResponseEntity<Object> badRequest(ForbiddenException e) {
+    public ResponseEntity<Object> badRequest(BadRequestException e) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         ApiException apiException = new ApiException(
-                "Bad Request",
+                e.getMessage(),
                 HttpStatus.BAD_REQUEST,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
