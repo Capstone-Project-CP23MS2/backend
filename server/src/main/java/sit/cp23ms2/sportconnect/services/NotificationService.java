@@ -21,6 +21,7 @@ import sit.cp23ms2.sportconnect.entities.Notification;
 import sit.cp23ms2.sportconnect.entities.User;
 import sit.cp23ms2.sportconnect.enums.NotificationType;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
+import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
 import sit.cp23ms2.sportconnect.repositories.NotificationRepository;
 import sit.cp23ms2.sportconnect.repositories.UserRepository;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
@@ -33,6 +34,8 @@ public class NotificationService {
     private NotificationRepository repository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    ActivityRepository activityRepository;
     @Autowired
     private AuthenticationUtil authenticationUtil;
 
@@ -55,12 +58,14 @@ public class NotificationService {
     }
 
     public Notification Create(CreateNotificationDto newNotification, BindingResult result) throws MethodArgumentNotValidException {
-        System.out.println(result.hasErrors());
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
         User user = userRepository.findById(newNotification.getTargetId()).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification: " + newNotification.getTargetId() + " Not Found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: " + newNotification.getTargetId() + " Not Found"));
+        Activity activity = activityRepository.findById(newNotification.getActivityId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity ID: " + newNotification.getActivityId() + " Not Found"));
         Notification notification = modelMapper.map(newNotification, Notification.class);
         notification.setTargetId(user);
+        notification.setActivity(activity);
         repository.saveAndFlush(notification);
         return notification;
     }

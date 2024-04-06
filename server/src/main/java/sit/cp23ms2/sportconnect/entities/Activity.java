@@ -59,6 +59,9 @@ public class Activity {
     @Column(name = "noOfMembers")
     private Integer noOfMembers;
 
+    @Column(name = "memberCounts")
+    private Integer memberCounts;
+
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {
@@ -69,6 +72,9 @@ public class Activity {
             ,joinColumns = {@JoinColumn(name = "activityId")}
             ,inverseJoinColumns = {@JoinColumn(name = "userId")})
     private Set<User> users = new HashSet<>();
+
+
+
 
 
 }

@@ -11,6 +11,7 @@ import java.time.Instant;
 public class NotificationDto {
     private Integer notificationId;
     private Integer targetId;
+    private Integer activityId;
     private Boolean unRead;
     private NotificationType type;
     private String message;

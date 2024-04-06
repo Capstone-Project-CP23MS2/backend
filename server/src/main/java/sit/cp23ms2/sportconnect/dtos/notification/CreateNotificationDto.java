@@ -22,6 +22,7 @@ public class CreateNotificationDto {
 
     private Integer targetId;
 
+    private Integer activityId;
 
     private Boolean unRead;
 

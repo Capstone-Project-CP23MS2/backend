@@ -28,8 +28,12 @@ public class ActivityDto {
     private Instant createdAt;
     private Instant updatedAt;
     private Integer noOfMembers;
+    private Integer memberCounts;
 
-    //custom only 3 fields
+    //custom only 3 fields of User in Participants
     private Set<CustomUserActivityDto> users = new HashSet<>();
+
+    //custom only 2 fields of File in this Activity
+    private Set<CustomFileActivityDto> files = new HashSet<>();
 
 }

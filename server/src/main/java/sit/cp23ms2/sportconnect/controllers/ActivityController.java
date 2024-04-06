@@ -5,12 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import sit.cp23ms2.sportconnect.dtos.activity.ActivityDto;
-import sit.cp23ms2.sportconnect.dtos.activity.CreateActivityDto;
-import sit.cp23ms2.sportconnect.dtos.activity.PageActivityDto;
-import sit.cp23ms2.sportconnect.dtos.activity.UpdateActivityDto;
+import sit.cp23ms2.sportconnect.dtos.activity.*;
 import sit.cp23ms2.sportconnect.entities.Activity;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
+import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
+import sit.cp23ms2.sportconnect.repositories.FileRepository;
+import sit.cp23ms2.sportconnect.repositories.UserRepository;
 import sit.cp23ms2.sportconnect.services.ActivityService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -34,6 +35,8 @@ public class ActivityController {
     public ActivityService activityService;
     @Autowired
     public ModelMapper modelMapper;
+    @Autowired
+    ActivityRepository repository;
 
     @GetMapping
     public PageActivityDto getActivity(@RequestParam(defaultValue = "0") int page,
@@ -50,13 +53,24 @@ public class ActivityController {
 
     @GetMapping("/{id}")
     public ActivityDto getActivityById(@PathVariable Integer id) {
-        return modelMapper.map(activityService.getById(id), ActivityDto.class);
+        Activity activity = activityService.getById(id);
+        Set<CustomFileActivityDto> fileSets = activityService.getActivityFiles(activity.getActivityId()).stream().map(file -> {
+            CustomFileActivityDto fileSet = modelMapper.map(file, CustomFileActivityDto.class); // เอา File ที่มีทุก field มา map เข้าไปแค่ 2 fields ทีละ file
+            return fileSet;
+        }).collect(Collectors.toSet());
+        ActivityDto activityDto = modelMapper.map(activityService.getById(id), ActivityDto.class);
+        activityDto.setFiles(fileSets);
+        return activityDto;
     }
 
     @PostMapping
     public ActivityDto createActivity(@Valid @ModelAttribute CreateActivityDto newActivity, BindingResult result) throws MethodArgumentNotValidException,
             ForbiddenException{
-        return activityService.create(newActivity, result);
+        Activity createdActivity = activityService.create(newActivity, result);
+        ActivityDto dto = modelMapper.map(createdActivity, ActivityDto.class);
+        dto.setMemberCounts(1);
+
+        return dto;
     }
 
     @PostMapping("/search")

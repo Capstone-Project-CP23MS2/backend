@@ -5,15 +5,10 @@ import org.springframework.http.ResponseEntity;
 
 import sit.cp23ms2.sportconnect.controllers.SearchTest;
 import sit.cp23ms2.sportconnect.dtos.activity.*;
-import sit.cp23ms2.sportconnect.entities.Activity;
-import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
-import sit.cp23ms2.sportconnect.entities.Category;
-import sit.cp23ms2.sportconnect.entities.Location;
+import sit.cp23ms2.sportconnect.entities.*;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
-import sit.cp23ms2.sportconnect.repositories.ActivityParticipantRepository;
-import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
-import sit.cp23ms2.sportconnect.repositories.CategoryRepository;
+import sit.cp23ms2.sportconnect.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,7 +21,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
-import sit.cp23ms2.sportconnect.repositories.LocationRepository;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
@@ -51,6 +45,8 @@ public class ActivityService {
     private AuthenticationUtil authenticationUtil;
     @Autowired
     LocationService locationService;
+    @Autowired
+    FileRepository fileRepository;
 
     //nameError
     final private FieldError titleErrorObj = new FieldError("createActivityDto",
@@ -72,6 +68,7 @@ public class ActivityService {
         }
         Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
             ActivityDto activityDto = modelMapper.map(activity, ActivityDto.class);
+            //Set<File> filesInThisActivity = this.getActivityFiles(activity.getActivityId());
             //set category name in dto
             activityDto.setCategoryName(activity.getCategoryId().getName());
             //set users_activities in dto with custom field
@@ -79,7 +76,12 @@ public class ActivityService {
                 CustomUserActivityDto userSet = modelMapper.map(user, CustomUserActivityDto.class); // เอา user ที่มีทุก field มา map เข้าไปแค่ 3 fields ทีละ user
                 return userSet;
             }).collect(Collectors.toSet());
+            Set<CustomFileActivityDto> fileSets = this.getActivityFiles(activity.getActivityId()).stream().map(file -> {
+                CustomFileActivityDto fileSet = modelMapper.map(file, CustomFileActivityDto.class); // เอา File ที่มีทุก field มา map เข้าไปแค่ 2 fields ทีละ file
+                return fileSet;
+            }).collect(Collectors.toSet());
             activityDto.setUsers(userSets);
+            activityDto.setFiles(fileSets);
             return activityDto;
         });
 
@@ -97,7 +99,7 @@ public class ActivityService {
                 repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    public ActivityDto create(CreateActivityDto newActivity, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
+    public Activity create(CreateActivityDto newActivity, BindingResult result) throws MethodArgumentNotValidException, ForbiddenException {
         //Error validation
         if(!isCurrentUserWillBeHostActivity(newActivity))
             throw new ForbiddenException("You're not allowed to create other's activity");
@@ -115,7 +117,7 @@ public class ActivityService {
         activityParticipantRepository.insertWithEnum(createdActivity.getHostUser().getUserId()
                 , createdActivity.getActivityId(), "ready", createdActivity.getCreatedAt());
 
-        return modelMapper.map(createdActivity, ActivityDto.class);
+        return createdActivity;
     }
 
     public ActivityDto update(UpdateActivityDto updateActivity, Integer id, BindingResult result) throws MethodArgumentNotValidException,
@@ -173,6 +175,10 @@ public class ActivityService {
         if(!isCurrentUserHost(activity))
             throw new ForbiddenException("You're not allowed to delete this activity");
         repository.deleteById(id);
+    }
+
+    public Set<File> getActivityFiles(Integer activityId) {
+        return fileRepository.findAllByActivityFile_ActivityId(activityId);
     }
 
     private boolean isCurrentUserHost(Activity activity) {

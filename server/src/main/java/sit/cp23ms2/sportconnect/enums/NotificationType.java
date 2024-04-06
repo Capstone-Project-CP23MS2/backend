@@ -11,5 +11,9 @@ public enum NotificationType {
     recommend,
     review,
     activity_start,
-    activity_end
+    activity_end,
+    update_activity,
+    delete_activity
 }
+
+
