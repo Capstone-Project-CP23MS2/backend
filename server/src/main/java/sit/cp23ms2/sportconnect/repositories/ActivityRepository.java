@@ -16,7 +16,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     @Query(
             value = "SELECT * FROM \"activities\" WHERE (\"categoryId\" IN (:categoryIds) OR COALESCE(:categoryIds) IS NULL) " +
                     "AND (LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)" +
-                    "AND \"activityId\" = :activityId OR :activityId IS NULL ORDER BY \"activityId\"",nativeQuery = true
+                    "AND (\"activityId\" = :activityId OR :activityId IS NULL) ORDER BY \"activityId\"",nativeQuery = true
     )
     Page<Activity> findAllActivities(
             Pageable pageable,
@@ -28,7 +28,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     @Query(
             value = "SELECT * FROM \"activities\" WHERE " +
                     "(LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL)" +
-                    "AND \"activityId\" = :activityId OR :activityId IS NULL ORDER BY \"activityId\"",nativeQuery = true
+                    "AND (\"activityId\" = :activityId OR :activityId IS NULL) ORDER BY \"activityId\"",nativeQuery = true
     )
     Page<Activity> findAllActivitiesNoCategoryFilter(
             Pageable pageable,
