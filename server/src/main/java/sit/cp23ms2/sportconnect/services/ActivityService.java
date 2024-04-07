@@ -56,14 +56,14 @@ public class ActivityService {
     final private FieldError titleSizeErrorObj = new FieldError("updateActivityDto",
             "title", "Title size must not over 100");
 
-    public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title) {
+    public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title, Integer activityId) {
         //Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
         Page<Activity> listActivities;
         if(categoryIds != null) {
-            listActivities = repository.findAllActivities(pageRequest, categoryIds, title); //ได้เป็น Pageable ของ User\
+            listActivities = repository.findAllActivities(pageRequest, categoryIds, title, activityId); //ได้เป็น Pageable ของ User\
         } else {
-            listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title);
+            listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title, activityId);
             System.out.println(title);
         }
         Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
