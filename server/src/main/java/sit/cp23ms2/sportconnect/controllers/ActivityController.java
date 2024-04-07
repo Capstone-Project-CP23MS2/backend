@@ -43,12 +43,13 @@ public class ActivityController {
                                        @RequestParam(defaultValue = "10") int pageSize,
                                        @RequestParam(defaultValue = "\"activityId\"") String sortBy,
                                        @RequestParam(required = false)Set<Integer> categoryIds,
-                                       @RequestParam(required = false)String title
+                                       @RequestParam(required = false)String title,
+                                       @RequestParam(required = false)Integer activityId
                                        //@RequestParam(required = false)String place
             , HttpServletResponse response) throws IOException {
         //response.sendRedirect("https://google.com");
 
-        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title);
+        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId);
     }
 
     @GetMapping("/{id}")
@@ -77,8 +78,9 @@ public class ActivityController {
     public PageActivityDto searchTest(@RequestBody SearchTest searchTest,
                                   @RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "10") int pageSize,
-                                  @RequestParam(defaultValue = "title") String sortBy) throws MethodArgumentNotValidException {
-        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle());
+                                  @RequestParam(defaultValue = "title") String sortBy,
+                                      @RequestParam(required = false) Integer activityId) throws MethodArgumentNotValidException {
+        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId);
     }
 
     @PostMapping("/search2")
