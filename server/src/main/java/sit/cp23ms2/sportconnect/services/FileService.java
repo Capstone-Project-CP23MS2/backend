@@ -109,9 +109,14 @@ public class FileService {
 
     public void delete(Integer id) throws IOException {
         sit.cp23ms2.sportconnect.entities.File file = this.getById(id);
-        BlobId blobId = BlobId.of("sportconnect-storage.appspot.com", file.getFileName());
-        Storage storage = this.getStorage();
-        storage.delete(blobId);
+        BlobId blobId;
+        try {
+            blobId = BlobId.of("sportconnect-storage.appspot.com", file.getFileName());
+            Storage storage = this.getStorage();
+            storage.delete(blobId);
+        } catch (NullPointerException e) {
+            e.getMessage();
+        }
         repository.deleteById(id);
     }
 
