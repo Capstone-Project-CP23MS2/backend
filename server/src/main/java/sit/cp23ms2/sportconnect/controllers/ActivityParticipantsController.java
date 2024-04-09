@@ -13,6 +13,7 @@ import sit.cp23ms2.sportconnect.dtos.activity_participants.UpdateActivityPartici
 import sit.cp23ms2.sportconnect.dtos.request.CreateRequestDto;
 import sit.cp23ms2.sportconnect.dtos.request.PageRequestDto;
 import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
+import sit.cp23ms2.sportconnect.exceptions.type.BadRequestException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.services.ActivityParticipantsService;
 
@@ -32,10 +33,11 @@ public class ActivityParticipantsController {
                                                  @RequestParam(defaultValue = "10") int pageSize,
                                                  @RequestParam(required = false) Integer activityId,
                                                  @RequestParam(required = false) Integer userId,
-                                                 HttpServletResponse response) throws IOException {
+                                                 @RequestParam(required = false) String status,
+                                                 HttpServletResponse response) throws IOException, BadRequestException {
         //response.sendRedirect("https://google.com");
 
-        return activityParticipantsService.getActivityParticipants(page, pageSize, activityId, userId);
+        return activityParticipantsService.getActivityParticipants(page, pageSize, activityId, userId, status);
     }
 
     @PostMapping
