@@ -24,12 +24,14 @@ public interface ActivityParticipantRepository extends JpaRepository<ActivityPar
 
     @Query(
             value = "SELECT * FROM \"activityParticipants\" WHERE (\"activityId\" = :activityId OR :activityId IS NULL)" +
-                    "AND (\"userId\" = :userId OR :userId IS NULL) ",nativeQuery = true
+                    "AND (\"userId\" = :userId OR :userId IS NULL)" +
+                    "AND (\"status\" = cast(:status as status_participant) OR :status IS NULL) ",nativeQuery = true
     )
     Page<ActivityParticipant> findAllActivityParticipants(
             Pageable pageable,
             @Param("activityId") Integer activityId,
-            @Param("userId") Integer userId
+            @Param("userId") Integer userId,
+            @Param("status") String status
     );
 
     public boolean existsByActivity_ActivityIdAndUser_UserId(Integer activityId, Integer userId);
