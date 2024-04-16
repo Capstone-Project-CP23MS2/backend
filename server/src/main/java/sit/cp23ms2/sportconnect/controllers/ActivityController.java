@@ -45,12 +45,13 @@ public class ActivityController {
                                        @RequestParam(required = false)Set<Integer> categoryIds,
                                        @RequestParam(required = false)String title,
                                        @RequestParam(required = false)Integer activityId,
+                                       @RequestParam(required = false)Integer hostId,
                                        @RequestParam(required = false)Integer userId
                                        //@RequestParam(required = false)String place
             , HttpServletResponse response) throws IOException {
         //response.sendRedirect("https://google.com");
 
-        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, userId);
+        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, hostId, userId);
     }
 
     @GetMapping("/{id}")
@@ -77,12 +78,13 @@ public class ActivityController {
 
     @PostMapping("/search")
     public PageActivityDto searchTest(@RequestBody SearchTest searchTest,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int pageSize,
-                                  @RequestParam(defaultValue = "title") String sortBy,
-                                  @RequestParam(required = false) Integer activityId,
-                                  @RequestParam(required = false)Integer userId) throws MethodArgumentNotValidException {
-        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId, userId);
+                                      @RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "10") int pageSize,
+                                      @RequestParam(defaultValue = "title") String sortBy,
+                                      @RequestParam(required = false) Integer activityId,
+                                      @RequestParam(required = false)Integer hostId,
+                                      @RequestParam(required = false) Integer userId) throws MethodArgumentNotValidException {
+        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId, hostId, userId);
     }
 
     @PostMapping("/search2")

@@ -57,14 +57,14 @@ public class ActivityService {
             "title", "Title size must not over 100");
 
     public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title,
-                                       Integer activityId, Integer hostUserId) {
+                                       Integer activityId, Integer hostUserId, Integer userId) {
         //Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
         Page<Activity> listActivities;
         if(categoryIds != null) {
-            listActivities = repository.findAllActivities(pageRequest, categoryIds, title, activityId, hostUserId); //ได้เป็น Pageable ของ User\
+            listActivities = repository.findAllActivities(pageRequest, categoryIds, title, activityId, hostUserId, userId); //ได้เป็น Pageable ของ User\
         } else {
-            listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title, activityId, hostUserId);
+            listActivities = repository.findAllActivitiesNoCategoryFilter(pageRequest, title, activityId, hostUserId, userId);
             System.out.println(title);
         }
         Page<ActivityDto> listActivitiesCustomDto = listActivities.map(activity -> { //custom ค่าอื่นๆมาใส่ใน dto
