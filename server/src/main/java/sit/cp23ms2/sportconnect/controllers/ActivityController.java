@@ -46,12 +46,14 @@ public class ActivityController {
                                        @RequestParam(required = false)String title,
                                        @RequestParam(required = false)Integer activityId,
                                        @RequestParam(required = false)Integer hostId,
-                                       @RequestParam(required = false)Integer userId
+                                       @RequestParam(required = false)Integer userId,
+                                       @RequestParam(required = false)String dateStatus,
+                                       @RequestParam(required = false)String date
                                        //@RequestParam(required = false)String place
             , HttpServletResponse response) throws IOException {
         //response.sendRedirect("https://google.com");
 
-        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, hostId, userId);
+        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, hostId, userId, dateStatus, date);
     }
 
     @GetMapping("/{id}")
@@ -83,8 +85,10 @@ public class ActivityController {
                                       @RequestParam(defaultValue = "title") String sortBy,
                                       @RequestParam(required = false) Integer activityId,
                                       @RequestParam(required = false)Integer hostId,
-                                      @RequestParam(required = false) Integer userId) throws MethodArgumentNotValidException {
-        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId, hostId, userId);
+                                      @RequestParam(required = false) Integer userId,
+                                      @RequestParam(required = false)String dateStatus,
+                                      @RequestParam(required = false)String date) throws MethodArgumentNotValidException {
+        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId, hostId, userId, dateStatus, date);
     }
 
     @PostMapping("/search2")
