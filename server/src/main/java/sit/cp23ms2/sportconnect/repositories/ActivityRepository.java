@@ -22,7 +22,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL) " +
                     "AND (\"activityId\" = :activityId OR :activityId IS NULL) " +
                     "AND (\"hostUserId\" = :hostUserId OR :hostUserId IS NULL) " +
-                    "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId)) " +
+                    "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
+                    "\"hostUserId\" <> :userId) " +
                     "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
                     "ORDER BY \"activityId\"",nativeQuery = true
     )
@@ -53,7 +54,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                 "AND (LOWER(\"title\") LIKE LOWER(concat('%', :title, '%')) OR LOWER(:title) IS NULL) " +
                 "AND (\"activityId\" = :activityId OR :activityId IS NULL) " +
                 "AND (\"hostUserId\" = :hostUserId OR :hostUserId IS NULL) " +
-                "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId)) " +
+                "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
+                "\"hostUserId\" <> :userId) " +
                 "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
                 "ORDER BY \"activityId\"",nativeQuery = true
 )
