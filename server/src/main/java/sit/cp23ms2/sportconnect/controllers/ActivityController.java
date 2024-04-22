@@ -56,6 +56,25 @@ public class ActivityController {
         return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, hostId, userId, dateStatus, date);
     }
 
+    @GetMapping("/getList")
+    public List<ActivityDto> getActivity(
+                                       @RequestParam(required = false)Set<Integer> categoryIds,
+                                       @RequestParam(required = false)String title,
+                                       @RequestParam(required = false)Integer activityId,
+                                       @RequestParam(required = false)Integer hostId,
+                                       @RequestParam(required = false)Integer userId,
+                                       @RequestParam(required = false)String dateStatus,
+                                       @RequestParam(required = false)String date,
+                                       @RequestParam(required = false)Double lat,
+                                       @RequestParam(required = false)Double lng,
+                                       @RequestParam(required = false)Integer radius
+                                       //@RequestParam(required = false)String place
+            , HttpServletResponse response) throws IOException {
+        //response.sendRedirect("https://google.com");
+
+        return activityService.getActivityNoPaging(categoryIds, title, activityId, hostId, userId, dateStatus, date, lat, lng, radius);
+    }
+
     @GetMapping("/{id}")
     public ActivityDto getActivityById(@PathVariable Integer id) {
         Activity activity = activityService.getById(id);

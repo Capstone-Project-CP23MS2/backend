@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import sit.cp23ms2.sportconnect.dtos.location.LocationDto;
 import sit.cp23ms2.sportconnect.dtos.location.PageLocationDto;
 import sit.cp23ms2.sportconnect.services.LocationService;
+import sit.cp23ms2.sportconnect.utils.ListMapper;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/locations")
@@ -16,12 +19,21 @@ public class LocationController {
     LocationService locationService;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    ListMapper listMapper;
 
     @GetMapping
     public PageLocationDto getLocation(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int pageSize,
                                        @RequestParam(defaultValue = "locationId") String sortBy) {
         return locationService.getLocation(page, pageSize, sortBy);
+    }
+
+    @GetMapping("/getList")
+    public List<LocationDto> getLocationNoPaging(@RequestParam(required = false)Double lat,
+                                                 @RequestParam(required = false)Double lng,
+                                                 @RequestParam(required = false)Integer radius) {
+        return locationService.getLocationNoPaging(lat, lng, radius);
     }
 
     @GetMapping("/{id}")

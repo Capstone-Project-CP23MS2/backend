@@ -8,6 +8,8 @@
 -- DB
 BEGIN;
 
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 DROP TABLE IF EXISTS "categories" CASCADE;
 DROP TABLE IF EXISTS "activityParticipants" CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
@@ -125,6 +127,7 @@ CREATE TABLE IF NOT EXISTS public.location
     name character varying(20) NOT NULL,
 	latitude numeric,
     longitude numeric,
+	point point,
     PRIMARY KEY ("locationId")
 );
 
@@ -384,11 +387,11 @@ EXECUTE FUNCTION update_member_counts();
 
 -- INSERT DATA
 insert into "location" values
-(nextval('locations_sequence'), 'Bangkok', 21.124325, 21.1111111),
-(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11),
-(nextval('locations_sequence'), 'KMUTT', 13.6512522, 100.494061),
-(nextval('locations_sequence'), 'The Nine Center', 13.7414219, 100.6199585),
-(nextval('locations_sequence'), 'Siam Paragon', 13.7457749, 100.5318268);
+(nextval('locations_sequence'), 'Bangkok', 21.124325, 21.1111111, point(1,2)),
+(nextval('locations_sequence'), 'Kam Pang Phet', 234.546546534, 11, point(100,100)),
+(nextval('locations_sequence'), 'KMUTT', 13.6512522, 100.494061, point(10,10)),
+(nextval('locations_sequence'), 'The Nine Center', 13.7414219, 100.6199585, point(-100,-100)),
+(nextval('locations_sequence'), 'Siam Paragon', 13.7457749, 100.5318268, point(45,45));
 
 insert into "user" values
 (nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),

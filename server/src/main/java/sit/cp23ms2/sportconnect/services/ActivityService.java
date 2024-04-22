@@ -90,6 +90,48 @@ public class ActivityService {
         return  pageActivityDto;
     }
 
+    //No Pagination
+    public List<ActivityDto> getActivityNoPaging(Set<Integer> categoryIds, String title, Integer activityId,
+                                                 Integer hostUserId, Integer userId, String dateStatus, String date,
+                                                 Double lat, Double lng, Integer radius) {
+        List<Activity> activities;
+        String pointText = new String();
+        if(lat != null && lng != null && radius != null) {
+            pointText = "'POINT(" + lat + " " + lng + ")'";
+            System.out.println(pointText);
+        }
+        if (categoryIds != null) {
+            activities = repository.findAllListActivities(categoryIds, title, activityId, hostUserId, userId, dateStatus, date, lat, lng, radius);
+        } else {
+            activities = repository.findAllListActivitiesNoCategoryFilter(title, activityId, hostUserId, userId, dateStatus, date, lat, lng, radius);
+        }
+
+        List<ActivityDto> activityDtos = activities.stream().map(activity -> {
+            ActivityDto activityDto = modelMapper.map(activity, ActivityDto.class);
+
+            // Set category name in DTO
+            activityDto.setCategoryName(activity.getCategoryId().getName());
+
+            // Set users in DTO with custom field
+            Set<CustomUserActivityDto> userSets = activity.getUsers().stream().map(user -> {
+                CustomUserActivityDto userSet = modelMapper.map(user, CustomUserActivityDto.class);
+                return userSet;
+            }).collect(Collectors.toSet());
+            activityDto.setUsers(userSets);
+
+            // Set files in DTO with custom field
+            Set<CustomFileActivityDto> fileSets = this.getActivityFiles(activity.getActivityId()).stream().map(file -> {
+                CustomFileActivityDto fileSet = modelMapper.map(file, CustomFileActivityDto.class);
+                return fileSet;
+            }).collect(Collectors.toSet());
+            activityDto.setFiles(fileSets);
+
+            return activityDto;
+        }).collect(Collectors.toList());
+
+        return activityDtos;
+    }
+
     public List<Activity> getTest(SearchTest searchTest) {
         return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle());
 //        return repository.findAllActivitiesNoCategoryFilterNoPage(searchTest.getTitle(), searchTest.getPlace());
