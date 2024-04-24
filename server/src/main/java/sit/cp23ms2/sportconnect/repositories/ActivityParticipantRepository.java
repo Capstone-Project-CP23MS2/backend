@@ -18,20 +18,22 @@ public interface ActivityParticipantRepository extends JpaRepository<ActivityPar
     @Modifying
     @Transactional
     @Query(
-            value = "INSERT INTO \"activityParticipants\" VALUES(?1, ?2, cast(?3 as status_participant), ?4)", nativeQuery = true
+            value = "INSERT INTO \"activityParticipants\" VALUES(?1, ?2, cast(?3 as status_participant), cast(?4 as rsvp_status_participant), ?5)", nativeQuery = true
     )
-    public void insertWithEnum(Integer userId, Integer activityId, String status, Instant joinedAt);
+    public void insertWithEnum(Integer userId, Integer activityId, String status, String rsvpStatus, Instant joinedAt);
 
     @Query(
             value = "SELECT * FROM \"activityParticipants\" WHERE (\"activityId\" = :activityId OR :activityId IS NULL)" +
                     "AND (\"userId\" = :userId OR :userId IS NULL)" +
-                    "AND (\"status\" = cast(:status as status_participant) OR :status IS NULL) ",nativeQuery = true
+                    "AND (\"status\" = cast(:status as status_participant) OR :status IS NULL) " +
+                    "AND (\"rsvpstatus\" = cast(:rsvpStatus as rsvp_status_participant) OR :rsvpStatus IS NULL) ",nativeQuery = true
     )
     Page<ActivityParticipant> findAllActivityParticipants(
             Pageable pageable,
             @Param("activityId") Integer activityId,
             @Param("userId") Integer userId,
-            @Param("status") String status
+            @Param("status") String status,
+            @Param("rsvpStatus") String rsvpStatus
     );
 
     public boolean existsByActivity_ActivityIdAndUser_UserId(Integer activityId, Integer userId);

@@ -34,10 +34,11 @@ public class ActivityParticipantsController {
                                                  @RequestParam(required = false) Integer activityId,
                                                  @RequestParam(required = false) Integer userId,
                                                  @RequestParam(required = false) String status,
+                                                 @RequestParam(required = false) String rsvpStatus,
                                                  HttpServletResponse response) throws IOException, BadRequestException {
         //response.sendRedirect("https://google.com");
 
-        return activityParticipantsService.getActivityParticipants(page, pageSize, activityId, userId, status);
+        return activityParticipantsService.getActivityParticipants(page, pageSize, activityId, userId, status, rsvpStatus);
     }
 
     @PostMapping

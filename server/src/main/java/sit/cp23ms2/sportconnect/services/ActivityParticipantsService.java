@@ -17,6 +17,7 @@ import sit.cp23ms2.sportconnect.dtos.activity_participants.PageActivityParticipa
 import sit.cp23ms2.sportconnect.dtos.activity_participants.UpdateActivityParticipantDto;
 import sit.cp23ms2.sportconnect.entities.Activity;
 import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
+import sit.cp23ms2.sportconnect.enums.RSVPStatusParticipant;
 import sit.cp23ms2.sportconnect.enums.StatusParticipant;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
 import sit.cp23ms2.sportconnect.exceptions.type.BadRequestException;
@@ -41,13 +42,21 @@ public class ActivityParticipantsService {
     private AuthenticationUtil authenticationUtil;
 
     public PageActivityParticipantDto getActivityParticipants(int pageNum, int pageSize, Integer activityId, Integer userId,
-                                                              String status) throws BadRequestException {
+                                                              String status, String rsvpStatus) throws BadRequestException {
         if(status != null) {
             try {
                 StatusParticipant statusParticipant = StatusParticipant.valueOf(status);
                 System.out.println("Correct enum");
             } catch (IllegalArgumentException e) {
-                throw new BadRequestException("ค่า Enum ของ Status ไม่ตรงตามค่าต่อไปนี้: arrived, to_be_late, ready, not_coming");
+                throw new BadRequestException("ค่า Enum ของ Status ไม่ตรงตามค่าต่อไปนี้: 'arrived', 'not_arrived', 'waiting', 'none'");
+            }
+        }
+        if(rsvpStatus != null) {
+            try {
+                RSVPStatusParticipant rsvpStatusParticipant = RSVPStatusParticipant.valueOf(rsvpStatus);
+                System.out.println("Correct enum");
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("ค่า Enum ของ RSVPStatus ไม่ตรงตามค่าต่อไปนี้: 'going', 'interesting', 'unconfirmed'");
             }
         }
         Pageable pageRequest = PageRequest.of(pageNum, pageSize);
@@ -61,7 +70,7 @@ public class ActivityParticipantsService {
                         "of this user for this activity");
             }
         }
-        Page<ActivityParticipant> listActivityParticipants = repository.findAllActivityParticipants(pageRequest, activityId, userId, status); //ได้เป็น Pageable
+        Page<ActivityParticipant> listActivityParticipants = repository.findAllActivityParticipants(pageRequest, activityId, userId, status, rsvpStatus); //ได้เป็น Pageable
         Page<ActivityParticipantsDto> pageParticipantIncludeUsername = listActivityParticipants.map(activityParticipant -> { //set username in each row
             ActivityParticipantsDto dto = modelMapper.map(activityParticipant, ActivityParticipantsDto.class);
             dto.setUsername(activityParticipant.getUser().getUsername());
@@ -105,6 +114,9 @@ public class ActivityParticipantsService {
     public ActivityParticipant mapActivityParticipant(ActivityParticipant existingActivityParticipant, UpdateActivityParticipantDto updateActivityParticipant) {
         if(updateActivityParticipant.getStatus() != null) {
             existingActivityParticipant.setStatus(StatusParticipant.valueOf(updateActivityParticipant.getStatus()));
+        }
+        if(updateActivityParticipant.getRsvpStatus() != null) {
+            existingActivityParticipant.setRsvpStatus(RSVPStatusParticipant.valueOf(updateActivityParticipant.getRsvpStatus()));
         }
         return existingActivityParticipant;
     }

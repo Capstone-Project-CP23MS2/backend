@@ -158,7 +158,7 @@ public class ActivityService {
         //create participant (because hostUser is also participant)
         ActivityParticipant activityParticipant = new ActivityParticipant();
         activityParticipantRepository.insertWithEnum(createdActivity.getHostUser().getUserId()
-                , createdActivity.getActivityId(), "ready", createdActivity.getCreatedAt());
+                , createdActivity.getActivityId(), "waiting", "unconfirmed", createdActivity.getCreatedAt());
 
         return createdActivity;
     }

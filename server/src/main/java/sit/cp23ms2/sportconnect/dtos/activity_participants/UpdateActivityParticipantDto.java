@@ -12,4 +12,5 @@ import sit.cp23ms2.sportconnect.enums.StatusParticipant;
 @AllArgsConstructor
 public class UpdateActivityParticipantDto {
     private String status;
+    private String rsvpStatus;
 }
