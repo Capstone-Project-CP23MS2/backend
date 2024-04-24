@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum StatusParticipant {
     arrived,
-    to_be_late,
-    ready,
-    not_coming
+    not_arrived,
+    waiting,
+    none
 }

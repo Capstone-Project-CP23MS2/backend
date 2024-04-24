@@ -26,6 +26,7 @@ DROP TYPE IF EXISTS gender_user;
 DROP TYPE IF EXISTS status_participant;
 DROP TYPE IF EXISTS role_user;
 DROP TYPE IF EXISTS type_notification;
+DROP TYPE IF EXISTS rsvp_status_participant;
 
 DROP SEQUENCE IF EXISTS users_sequence;
 DROP SEQUENCE IF EXISTS activities_sequence;
@@ -85,13 +86,15 @@ COMMENT ON TABLE public."user"
     IS 'ผู้ใช้';
 
 
-CREATE TYPE status_participant AS ENUM ('arrived', 'to_be_late', 'ready', 'not_coming');
+CREATE TYPE status_participant AS ENUM ('arrived', 'not_arrived', 'waiting', 'none');
+CREATE TYPE rsvp_status_participant AS ENUM ('going', 'interesting', 'unconfirmed');
 
 CREATE TABLE IF NOT EXISTS public."activityParticipants"
 (
     "userId" integer NOT NULL,
     "activityId" integer NOT NULL,
     status status_participant,
+	rsvpStatus rsvp_status_participant,
     "joinedAt" timestamp with time zone NOT NULL,
     CONSTRAINT "UserParty_pkey" PRIMARY KEY ("userId", "activityId")
 );
@@ -415,12 +418,12 @@ insert into "activities" values
 (nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12);
 
 insert into "activityParticipants" values
-(1, 1, 'ready', now()),
-(2, 1, 'ready', now()),
-(1, 2, 'ready', now()),
-(2, 2, 'ready', now()),
-(3, 3, 'ready', now()),
-(3, 4, 'ready', now());
+(1, 1, 'not_arrived', 'interesting' , now()),
+(2, 1, 'arrived', 'going', now()),
+(1, 2, 'none', 'unconfirmed', now()),
+(2, 2, 'not_arrived', 'going', now()),
+(3, 3, 'none', 'unconfirmed', now()),
+(3, 4, 'arrived', 'unconfirmed', now());
 
 insert into "request" values
 (4, 1, 'อยากพริ้วว่ะ', now()),

@@ -1,10 +1,13 @@
 package sit.cp23ms2.sportconnect.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sit.cp23ms2.sportconnect.entities.Location;
 
+import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.List;
 
 public interface LocationRepository extends JpaRepository<Location, Integer> {
@@ -16,4 +19,20 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
             @Param("lng") Double lng,
             @Param("radius") Integer radius
     );
+
+//    @Modifying
+//    @Transactional
+    @Query(
+            value = "INSERT INTO \"location\" VALUES(nextval('locations_sequence'), ?1, ?2, ?3, point(?2,?3)) RETURNING \"locationId\"", nativeQuery = true
+    )
+//    @Query(
+//            value = "INSERT INTO \"location\" (name, latitude, longitude) VALUES (?1, ?2, ?3, point(?2, ?3)) RETURNING \"locationId\"",
+//            nativeQuery = true
+//    )
+    public Integer insertWithEnum(
+            @Param("name") String name,
+            @Param("latitude") Double latitude,
+            @Param("longitude")Double longitude);
+
+
 }
