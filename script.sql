@@ -392,12 +392,9 @@ EXECUTE FUNCTION update_member_counts();
 insert into "location" values
 (nextval('locations_sequence'), 'Bangkok', 1, 2, point(1,2)),
 (nextval('locations_sequence'), 'Kam Pang Phet', 90, 100, point(90,100)),
-(nextval('locations_sequence'), 'KMUTT', 13, 100, point(13,100)),
+(nextval('locations_sequence'), 'KMUTT', 10, 10, point(10,10)),
 (nextval('locations_sequence'), 'The Nine Center', -80, -100, point(-80,-100)),
-(nextval('locations_sequence'), 'Siam Paragon', 45, 45, point(45,45)),
-(nextval('locations_sequence'), 'วัดไตรมิตรวิทยาราม', 13, 100, point(13,100)),
-(nextval('locations_sequence'), 'สวนลุมพินี', 13, 100, point(13,100)),
-(nextval('locations_sequence'), 'คอร์ดแบดมินตันเจริญนคร10', 13, 100, point(13, 100));
+(nextval('locations_sequence'), 'Siam Paragon', 45, 45, point(45,45));
 
 insert into "user" values
 (nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),
@@ -441,24 +438,7 @@ insert into "activities" values
 (nextval('activities_sequence'), 1, 1, 'Football Party', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
 (nextval('activities_sequence'), 2, 1, 'Football After Class', 'join use to play football after class', 4, '2024-02-01', 100, now(), now(), 22),
 (nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 5, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12),
-(nextval('activities_sequence'), 8, 1, 'Football 1', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 2', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 3', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 4', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 5', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 6', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 7', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 8', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 9', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 10', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 3, 2, 'Volley 1', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 2', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 3', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 4', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 5', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 6', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 7', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12);
+(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12);
 
 insert into "activityParticipants" values
 (1, 1, 'not_arrived', 'interesting' , now()),
