@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface LocationRepository extends JpaRepository<Location, Integer> {
 
-    @Query(value = "SELECT * FROM \"location\" WHERE ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(\"point\"\\:\\:geometry, ST_MakePoint(:lat, :lng), :radius, false))"
+    @Query(value = "SELECT * FROM \"location\" WHERE ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false))"
             , nativeQuery = true)
     List<Location> findAllLocationList(
             @Param("lat") Double lat,
@@ -23,7 +23,7 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
 //    @Modifying
 //    @Transactional
     @Query(
-            value = "INSERT INTO \"location\" VALUES(nextval('locations_sequence'), ?1, ?2, ?3, point(?2,?3)) RETURNING \"locationId\"", nativeQuery = true
+            value = "INSERT INTO \"location\" VALUES(nextval('locations_sequence'), ?1, ?2, ?3, point(?3,?2)) RETURNING \"locationId\"", nativeQuery = true
     )
 //    @Query(
 //            value = "INSERT INTO \"location\" (name, latitude, longitude) VALUES (?1, ?2, ?3, point(?2, ?3)) RETURNING \"locationId\"",

@@ -87,7 +87,7 @@ COMMENT ON TABLE public."user"
 
 
 CREATE TYPE status_participant AS ENUM ('arrived', 'not_arrived', 'waiting', 'none');
-CREATE TYPE rsvp_status_participant AS ENUM ('going', 'interesting', 'unconfirmed');
+CREATE TYPE rsvp_status_participant AS ENUM ('going', 'interesting');
 
 CREATE TABLE IF NOT EXISTS public."activityParticipants"
 (
@@ -390,25 +390,32 @@ EXECUTE FUNCTION update_member_counts();
 
 -- INSERT DATA
 insert into "location" values
-(nextval('locations_sequence'), 'Bangkok', 1, 2, point(1,2)),
-(nextval('locations_sequence'), 'Kam Pang Phet', 90, 100, point(90,100)),
-(nextval('locations_sequence'), 'KMUTT', 13.651232878725953, 100.49644682173339, point(13.651232878725953,100.49644682173339)),
-(nextval('locations_sequence'), 'The Nine Center', -80, -100, point(-80,-100)),
+(nextval('locations_sequence'), 'Bangkok', 1, 2, point(2,1)),
+(nextval('locations_sequence'), 'Kam Pang Phet', 90, 100, point(100, 90)),
+(nextval('locations_sequence'), 'KMUTT', 13.651232878725953, 100.49644682173339, point(100.49644682173339,13.651232878725953)),
+(nextval('locations_sequence'), 'The Nine Center', -80, -100, point(-100,-80)),
 (nextval('locations_sequence'), 'Siam Paragon', 45, 45, point(45,45)),
-(nextval('locations_sequence'), 'วัดไตรมิตรวิทยาราม', 13.737780345539074, 100.51344744302561, point(13.737780345539074,100.51344744302561)),
-(nextval('locations_sequence'), 'สวนลุมพินี', 13.732798712268714, 100.54188481107192, point(13.732798712268714,100.54188481107192)),
-(nextval('locations_sequence'), 'คอร์ดแบดมินตันเจริญนคร10', 13.725070900570657, 100.50581018748201, point(13.725070900570657, 100.50581018748201));
+(nextval('locations_sequence'), 'วัดไตรมิตรวิทยาราม', 13.737780345539074, 100.51344744302561, point(100.51344744302561,13.737780345539074)),
+(nextval('locations_sequence'), 'สวนลุมพินี', 13.732798712268714, 100.54188481107192, point(100.54188481107192,13.732798712268714)),
+(nextval('locations_sequence'), 'คอร์ดแบดมินตันเจริญนคร10', 13.725070900570657, 100.50581018748201, point(100.50581018748201, 13.725070900570657));
 
 insert into "user" values
 (nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Vinncent', 'Vinncent@email.com', 'user', '45FGFdsf093lfgffflDSAFDSAF43','Female', '2020-09-27', 1, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'NewUser', 'asdfsda@email.com', 'user', 'fd43DDSfgFDJkmAF43','Other', '2020-09-27', 2, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Mbappe', 's77777@email.com', 'user', '12sfdSDww232trhy3DDSfgFDJkmAF43','NotApplicable', '2020-09-27', 1, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 1, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'chic', 'chickenforregis1@gmail.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'Big', 'poorachad2545@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now()),
-(nextval('users_sequence'), 'ph', 'chumphu.phumin@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line',now(),now());
+(nextval('users_sequence'), 'Mbappe', 's77777@email.com', 'user', '12sfdSDww232trhy3DDSfgFDJkmAF43','NotApplicable', '2020-09-27', 2, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 3, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 3, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'chic', 'chickenforregis1@gmail.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 4, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'ph', 'chumphu.phumin@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 4, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Oat', '11@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 5, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Vinncent', 'z11@email.com', 'user', '45FGFdsf093lfgffflDSAFDSAF43','Female', '2020-09-27', 5, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'NewUser', 'a11@email.com', 'user', 'fd43DDSfgFDJkmAF43','Other', '2020-09-27', 6, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Mbappe', 'b11@email.com', 'user', '12sfdSDww232trhy3DDSfgFDJkmAF43','NotApplicable', '2020-09-27', 6, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Haaland', 'c11@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 7, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Yuthasart', 'd11@email.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 7, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'chic', 'e11@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 8, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'ph', 'f11@email.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 8, 'phone','line',now(),now());
 
 insert into "categories" values
 (nextval('categories_sequence'), 'Football', '22 players 11 each team'),
@@ -467,12 +474,14 @@ insert into "activities" values
 (nextval('activities_sequence'), 3, 2, 'Volley 7', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12);
 
 insert into "activityParticipants" values
-(1, 1, 'not_arrived', 'interesting' , now()),
+(1, 1, 'not_arrived', 'going' , now()),
 (2, 1, 'arrived', 'going', now()),
-(1, 2, 'none', 'unconfirmed', now()),
+(1, 2, 'none', 'interesting', now()),
 (2, 2, 'not_arrived', 'going', now()),
-(3, 3, 'none', 'unconfirmed', now()),
-(3, 4, 'arrived', 'unconfirmed', now());
+(3, 3, 'none', 'going', now()),
+(3, 4, 'arrived', 'going', now()),
+(11, 1, 'arrived', 'interesting', now()),
+(12, 1, 'arrived', 'interesting', now());
 
 insert into "request" values
 (4, 1, 'อยากพริ้วว่ะ', now()),
@@ -480,7 +489,21 @@ insert into "request" values
 
 insert into "userInterest" values
 (1, 3),
-(2, 1);
+(2, 1),
+(2, 2),
+(3, 1),
+(3, 3),
+(4, 5),
+(4, 2),
+(5, 1),
+(5, 3),
+(6, 1),
+(6, 4),
+(7, 1),
+(7, 2),
+(7, 3),
+(7, 4),
+(7, 5);
 
 insert into "notification" values
 (nextval('notifications_sequence'), 1, 2, true, 'join', 'asdfadsfasdfasd', now()),
