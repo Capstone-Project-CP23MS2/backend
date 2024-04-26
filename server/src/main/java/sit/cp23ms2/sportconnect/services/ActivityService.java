@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import sit.cp23ms2.sportconnect.controllers.SearchTest;
 import sit.cp23ms2.sportconnect.dtos.activity.*;
 import sit.cp23ms2.sportconnect.entities.*;
+import sit.cp23ms2.sportconnect.enums.NotificationType;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.*;
@@ -24,6 +25,8 @@ import org.springframework.web.server.ResponseStatusException;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,6 +44,9 @@ public class ActivityService {
     private CategoryRepository categoryRepository;
     @Autowired
     LocationRepository locationRepository;
+    @Autowired NotificationRepository notificationRepository;
+    @Autowired
+    UserRepository userRepository;
     @Autowired
     private AuthenticationUtil authenticationUtil;
     @Autowired
@@ -157,8 +163,24 @@ public class ActivityService {
         Activity createdActivity = repository.saveAndFlush(activity);
         //create participant (because hostUser is also participant)
         ActivityParticipant activityParticipant = new ActivityParticipant();
+        //send batch of notifications to users who interest this category
+        Location location = locationRepository.findById(newActivity.getLocationId()).orElseThrow(() -> new ApiNotFoundException("Location not found!"));
+        List<User> usersInterestThisActivityCategory = userRepository.findUsersCategoriesInterests(newActivity.getCategoryId(), newActivity.getHostUserId(), location.getLongitude(), location.getLatitude()).orElseThrow(() -> new ApiNotFoundException("User not found!"));
+        List<Notification> notifications = new ArrayList<>();
+        for(User user : usersInterestThisActivityCategory) {
+            Notification notification = new Notification();
+            notification.setTargetId(user);
+            notification.setActivity(createdActivity);
+            notification.setUnRead(true);
+            notification.setType(NotificationType.recommend);
+            notification.setMessage("We found new Activity near you that you may interested! - " + newActivity.getTitle());
+            notification.setCreatedAt(createdActivity.getCreatedAt());
+            notifications.add(notification);
+        }
+        notificationRepository.saveAllAndFlush(notifications);
+
         activityParticipantRepository.insertWithEnum(createdActivity.getHostUser().getUserId()
-                , createdActivity.getActivityId(), "waiting", "unconfirmed", createdActivity.getCreatedAt());
+                , createdActivity.getActivityId(), "waiting", "going", createdActivity.getCreatedAt());
 
         return createdActivity;
     }
@@ -180,35 +202,68 @@ public class ActivityService {
         if (result.hasErrors()) throw new MethodArgumentNotValidException(null, result);
 
         //System.out.println("โย่: " + updateActivity.getTitle());
+        String notificationMessage = "";
+        ActivityDto updatedActivityDto = mapActivity(activity, updateActivity, notificationMessage, id, activity.getHostUser().getUserId());
 
-        Activity updatedActivity = mapActivity(activity, updateActivity);
 
-        return modelMapper.map(repository.saveAndFlush(updatedActivity), ActivityDto.class);
+
+
+
+        return updatedActivityDto;
     }
 
-    public Activity mapActivity(Activity existingActivity, UpdateActivityDto updateActivity) {
-        if(updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) { //Set Title
-            System.out.println("สวัสดี: "+ updateActivity.getTitle());
-            existingActivity.setTitle(updateActivity.getTitle());
+    public ActivityDto mapActivity(Activity existingActivity, UpdateActivityDto updateActivity, String notificationMessage, Integer id, Integer hostId) {
+        ActivityDto activityDto = new ActivityDto();
+        if((updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) || (updateActivity.getCategoryId() != null) || (updateActivity.getDescription() != null && !updateActivity.getDescription().trim().equals("")) || (updateActivity.getLocationId() != null) || (updateActivity.getDateTime() != null && !updateActivity.getDateTime().toString().trim().equals("")) || (updateActivity.getDuration() != null) || (updateActivity.getNoOfMembers() != null)) {
+            notificationMessage = "Activity that you're participating are changed: " + " | ";
+            if(updateActivity.getTitle() != null && !updateActivity.getTitle().trim().equals("")) { //Set Title
+                notificationMessage = notificationMessage + "Title was changed from `" + existingActivity.getTitle() + "` to `" + updateActivity.getTitle() + "`" + "| ".replace('`', '"');
+                existingActivity.setTitle(updateActivity.getTitle());
+            }
+            if(updateActivity.getCategoryId() != null) { //Set Category
+                Category newCategory = categoryRepository.findById(updateActivity.getCategoryId()).orElseThrow(() -> new ApiNotFoundException("Category not found!"));
+                notificationMessage = notificationMessage + "Category: `" + existingActivity.getCategoryId().getName() + "` -> `" + newCategory.getName() + "`" + "| ".replace('`', '"');
+                existingActivity.setCategoryId(newCategory);
+            }
+            if(updateActivity.getDescription() != null && !updateActivity.getDescription().trim().equals("")) { //SET Description
+                notificationMessage = notificationMessage + "Desc: `" + existingActivity.getDescription() + "` -> `" + updateActivity.getDescription() + "`" + "| ".replace('`', '"');
+                existingActivity.setDescription(updateActivity.getDescription());
+            }
+
+            if(updateActivity.getLocationId() != null){ //Set Location ID
+                Location newLocation = locationRepository.findById(updateActivity.getLocationId()).orElseThrow(() -> new ApiNotFoundException("Location not found!"));
+                notificationMessage = notificationMessage + "Location: `" + existingActivity.getLocation().getName() + "` -> `" + newLocation.getName() + "`" + "| ".replace('`', '"');
+                existingActivity.setLocation(newLocation);
+            }
+            if(updateActivity.getDateTime() != null && !updateActivity.getDateTime().toString().trim().equals("")) {//Set Date & Time
+                notificationMessage = notificationMessage + "Date: `" + existingActivity.getDateTime() + "` -> `" + updateActivity.getDateTime() + "`" + "| ".replace('`', '"');
+                existingActivity.setDateTime(updateActivity.getDateTime());
+            }
+            if(updateActivity.getDuration() != null) { //Set Duration
+                notificationMessage = notificationMessage + "Duration: `" + existingActivity.getDuration() + "` -> `" + updateActivity.getDuration() + "`" + "| ".replace('`', '"');
+                existingActivity.setDuration(updateActivity.getDuration());
+            }
+            if(updateActivity.getNoOfMembers() != null) { //Set NoOfMembers
+                notificationMessage = notificationMessage + "Members: `" + existingActivity.getNoOfMembers() + "` -> `" + updateActivity.getNoOfMembers() + "`" + "| ".replace('`', '"');
+                existingActivity.setNoOfMembers(updateActivity.getNoOfMembers());
+            }
+            activityDto = modelMapper.map(repository.saveAndFlush(existingActivity), ActivityDto.class);
+            List<Notification> newNotifications = new ArrayList<>();
+            List<User> participants = userRepository.findUsersParticipantsInActivity(id,hostId).orElseThrow(() -> new ApiNotFoundException("User not found!"));
+            for(User user : participants) {
+                Notification notification = new Notification();
+                notification.setTargetId(user);
+                notification.setActivity(existingActivity);
+                notification.setUnRead(true);
+                notification.setType(NotificationType.update_activity);
+                notification.setMessage(notificationMessage);
+                notification.setCreatedAt(Instant.now());
+                newNotifications.add(notification);
+            }
+            notificationRepository.saveAllAndFlush(newNotifications);
         }
-        if(updateActivity.getCategoryId() != null) { //Set Category
-            Category newCategory = categoryRepository.findById(updateActivity.getCategoryId()).orElseThrow(() -> new ApiNotFoundException("Category not found!"));
-            existingActivity.setCategoryId(newCategory);
-        }
-        if(updateActivity.getDescription() != null && !updateActivity.getDescription().trim().equals("")) //Set Description
-            existingActivity.setDescription(updateActivity.getDescription());
-        if(updateActivity.getLocationId() != null){ //Set Location ID
-            Location newLocation = locationRepository.findById(updateActivity.getLocationId()).orElseThrow(() -> new ApiNotFoundException("Location not found!"));
-            existingActivity.setLocation(newLocation);
-        }
-        if(updateActivity.getDateTime() != null && !updateActivity.getDateTime().toString().trim().equals("")) //Set Date & Time
-            existingActivity.setDateTime(updateActivity.getDateTime());
-        if(updateActivity.getDuration() != null)
-            existingActivity.setDuration(updateActivity.getDuration());
-        if(updateActivity.getNoOfMembers() != null) {
-            existingActivity.setNoOfMembers(updateActivity.getNoOfMembers());
-        }
-        return existingActivity;
+
+        return activityDto;
     }
 
     public void delete(Integer id) throws ForbiddenException {
@@ -217,6 +272,31 @@ public class ActivityService {
                         id + "does not exist !"));
         if(!isCurrentUserHost(activity))
             throw new ForbiddenException("You're not allowed to delete this activity");
+        //UPDATE OLD NOTI + ADD NEW NOTI BEFORE ACTIVITY IS DELETED
+        List<Notification> oldNotifications = notificationRepository.findAllByActivity_ActivityId(id);
+        List<Notification> updatedNotificationsBeforeDelete = new ArrayList<>();
+        List<Notification> newNotifications = new ArrayList<>();
+        List<User> participants = userRepository.findUsersParticipantsInActivity(id, activity.getHostUser().getUserId()).orElseThrow(() -> new ApiNotFoundException("User not found!"));
+        for(Notification notification : oldNotifications) {
+            notification.setActivity(null);
+            updatedNotificationsBeforeDelete.add(notification);
+        }
+//        System.out.println(participants);
+        notificationRepository.saveAllAndFlush(updatedNotificationsBeforeDelete);
+
+        for(User user : participants) {
+//            System.out.println(user.getUserId());
+            Notification notification = new Notification();
+            notification.setTargetId(user);
+            notification.setActivity(null);
+            notification.setUnRead(true);
+            notification.setType(NotificationType.delete_activity);
+            notification.setMessage("Your participant's Activity is deleted by Host - " + activity.getTitle());
+            notification.setCreatedAt(Instant.now());
+            newNotifications.add(notification);
+        }
+        System.out.println(newNotifications);
+        notificationRepository.saveAllAndFlush(newNotifications);
         repository.deleteById(id);
     }
 

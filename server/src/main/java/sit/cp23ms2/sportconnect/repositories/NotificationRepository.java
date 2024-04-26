@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import sit.cp23ms2.sportconnect.entities.Notification;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
@@ -13,5 +14,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             value = "SELECT * FROM \"notification\" WHERE (\"targetId\" = :targetId OR :targetId IS NULL) ORDER BY \"createdAt\" DESC",nativeQuery = true
     )
     public Page<Notification> findAllNotifications(Pageable pageable, Integer targetId);
+
+    public List<Notification> findAllByActivity_ActivityId(Integer activityId);
 
 }

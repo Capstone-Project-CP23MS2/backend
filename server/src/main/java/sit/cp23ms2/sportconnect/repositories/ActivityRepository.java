@@ -82,7 +82,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
                     "\"hostUserId\" <> :userId) " +
                     "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
-                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lat, :lng), :radius, false)) " +
+                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false)) " +
                     "ORDER BY \"activityId\"",nativeQuery = true
     )
     List<Activity> findAllListActivities(
@@ -110,7 +110,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
                     "\"hostUserId\" <> :userId) " +
                     "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
-                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lat, :lng), :radius, false)) " +
+                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false)) " +
                     "ORDER BY \"activityId\"",nativeQuery = true
     )
     List<Activity> findAllListActivitiesNoCategoryFilter(
@@ -137,6 +137,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
             value = "SELECT * FROM \"activities\" WHERE \"activityId\" = ?1 ",nativeQuery = true
     )
     Optional<Activity> findActivityById(Integer id);
+
 
     public boolean existsByTitleAndActivityIdNot(String title, Integer id);
 

@@ -5,6 +5,5 @@ import lombok.Getter;
 @Getter
 public enum RSVPStatusParticipant {
     going,
-    interesting,
-    unconfirmed
+    interesting
 }
