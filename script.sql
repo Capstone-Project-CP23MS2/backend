@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS public.categories
 CREATE TABLE IF NOT EXISTS public.location
 (
     "locationId" serial NOT NULL,
-    name character varying(20) NOT NULL,
+    name character varying(100) NOT NULL,
 	latitude numeric,
     longitude numeric,
 	point point,
@@ -392,9 +392,12 @@ EXECUTE FUNCTION update_member_counts();
 insert into "location" values
 (nextval('locations_sequence'), 'Bangkok', 1, 2, point(1,2)),
 (nextval('locations_sequence'), 'Kam Pang Phet', 90, 100, point(90,100)),
-(nextval('locations_sequence'), 'KMUTT', 10, 10, point(10,10)),
+(nextval('locations_sequence'), 'KMUTT', 13.651232878725953, 100.49644682173339, point(13.651232878725953,100.49644682173339)),
 (nextval('locations_sequence'), 'The Nine Center', -80, -100, point(-80,-100)),
-(nextval('locations_sequence'), 'Siam Paragon', 45, 45, point(45,45));
+(nextval('locations_sequence'), 'Siam Paragon', 45, 45, point(45,45)),
+(nextval('locations_sequence'), 'วัดไตรมิตรวิทยาราม', 13.737780345539074, 100.51344744302561, point(13.737780345539074,100.51344744302561)),
+(nextval('locations_sequence'), 'สวนลุมพินี', 13.732798712268714, 100.54188481107192, point(13.732798712268714,100.54188481107192)),
+(nextval('locations_sequence'), 'คอร์ดแบดมินตันเจริญนคร10', 13.725070900570657, 100.50581018748201, point(13.725070900570657, 100.50581018748201));
 
 insert into "user" values
 (nextval('users_sequence'), 'Oat', 'oat@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 1, 'phone','line',now(),now()),
@@ -438,7 +441,30 @@ insert into "activities" values
 (nextval('activities_sequence'), 1, 1, 'Football Party', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
 (nextval('activities_sequence'), 2, 1, 'Football After Class', 'join use to play football after class', 4, '2024-02-01', 100, now(), now(), 22),
 (nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 5, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12);
+(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12),
+(nextval('activities_sequence'), 8, 1, 'Title11111Title22222Title33333Title44444Title55555Title66666Title77777Title88888Title99999,Title0000'
+ , 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolorem impedit
+ ipsam dicta corporis dolore praesentium illum eaque, eligendi porro minima! Asperiores labore voluptas odit inventore vero
+ fuga necessitatibus quia magnam quas tempora consequatur nam pariatur deleniti, accusantium ullam eveniet soluta praesentium provident!
+ Iste voluptatem fugiat distinctio ullam voluptate reiciendis voluptas aliquid delectus earum quas quos quasi quo, magnam
+ consectetur nisi debitis nemo dolor, cupiditat', 6, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 8, 1, 'Football 1', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 2', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 3', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 4', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 5', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 6', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 7', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 8', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 9', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 10', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
+(nextval('activities_sequence'), 3, 2, 'Volley 1', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 2', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 3', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 4', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 5', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 6', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 7', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12);
 
 insert into "activityParticipants" values
 (1, 1, 'not_arrived', 'interesting' , now()),
