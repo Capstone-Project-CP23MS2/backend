@@ -9,26 +9,16 @@ jobs:
     runs-on: self-hosted
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         clean: false
-    
-    # Down Docker-compose container
-    - name: Stop Docker Containers
-      run: docker compose down
-      
-    # Delete Docker Images (Frontend, Backend)
-    - name: Remove Backend Image
-      run: docker rmi work-backapp
 
-    # Fetch latest version from branch dev 
-    - name: Fetching Latest Data
-      run: git fetch
-      
-    # Pull from Github 
-    - name: Pulling Latest Data
-      run: git pull
-          
+    # Down Docker-compose container
+    - name: Stop Container and Remove Image 
+      run: |
+        docker compose down -v
+        docker rmi work-backapp
+
     # Start Docker-compose
     - name: Start Docker Container
       run: docker compose up -d

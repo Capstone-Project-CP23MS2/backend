@@ -6,6 +6,10 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.servers.Server;
+
+@OpenAPIDefinition(servers = {@Server(url = "/ms2", description = "Swagger UI for MS2")})
 
 @SpringBootApplication
 
