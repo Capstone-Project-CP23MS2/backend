@@ -7,6 +7,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import sit.cp23ms2.sportconnect.dtos.activity.*;
 import sit.cp23ms2.sportconnect.entities.Activity;
+import sit.cp23ms2.sportconnect.exceptions.type.BadRequestException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.ActivityRepository;
 import sit.cp23ms2.sportconnect.repositories.FileRepository;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,19 +43,30 @@ public class ActivityController {
     @GetMapping
     public PageActivityDto getActivity(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int pageSize,
-                                       @RequestParam(defaultValue = "\"activityId\"") String sortBy,
+                                       @RequestParam(defaultValue = "activityId") String sortBy,
                                        @RequestParam(required = false)Set<Integer> categoryIds,
                                        @RequestParam(required = false)String title,
                                        @RequestParam(required = false)Integer activityId,
                                        @RequestParam(required = false)Integer hostId,
                                        @RequestParam(required = false)Integer userId,
                                        @RequestParam(required = false)String dateStatus,
-                                       @RequestParam(required = false)String date
+                                       @RequestParam(required = false)String date,
+                                       @RequestParam(defaultValue = "ASC")String orderBy
                                        //@RequestParam(required = false)String place
-            , HttpServletResponse response) throws IOException {
+            , HttpServletResponse response) throws IOException, BadRequestException {
         //response.sendRedirect("https://google.com");
-
-        return activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, hostId, userId, dateStatus, date);
+        PageActivityDto pageActivityDto = new PageActivityDto();
+        try {
+            pageActivityDto = activityService.getActivity(page, pageSize, sortBy, categoryIds, title, activityId, hostId, userId, dateStatus, date, orderBy);
+        } catch (RuntimeException e) {
+            Throwable rootCause = com.google.common.base.Throwables.getRootCause(e);
+            if (rootCause instanceof SQLException) {
+                if ("42703".equals(((SQLException) rootCause).getSQLState())) {
+                    throw new BadRequestException("sortBy filter invalid column name: " + sortBy);
+                }
+            }
+        }
+        return pageActivityDto;
     }
 
     @GetMapping("/getList")
@@ -67,12 +80,13 @@ public class ActivityController {
                                        @RequestParam(required = false)String date,
                                        @RequestParam(required = false)Double lat,
                                        @RequestParam(required = false)Double lng,
-                                       @RequestParam(required = false)Integer radius
+                                       @RequestParam(required = false)Integer radius,
+                                       @RequestParam(defaultValue = "ASC")String orderBy
                                        //@RequestParam(required = false)String place
-            , HttpServletResponse response) throws IOException {
+            , HttpServletResponse response) throws IOException, BadRequestException {
         //response.sendRedirect("https://google.com");
 
-        return activityService.getActivityNoPaging(categoryIds, title, activityId, hostId, userId, dateStatus, date, lat, lng, radius);
+        return activityService.getActivityNoPaging(categoryIds, title, activityId, hostId, userId, dateStatus, date, lat, lng, radius, orderBy);
     }
 
     @GetMapping("/{id}")
@@ -106,8 +120,9 @@ public class ActivityController {
                                       @RequestParam(required = false)Integer hostId,
                                       @RequestParam(required = false) Integer userId,
                                       @RequestParam(required = false)String dateStatus,
-                                      @RequestParam(required = false)String date) throws MethodArgumentNotValidException {
-        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId, hostId, userId, dateStatus, date);
+                                      @RequestParam(required = false)String date,
+                                      @RequestParam(required = false) String orderBy) throws MethodArgumentNotValidException, BadRequestException {
+        return activityService.getActivity(page, pageSize, sortBy, null, searchTest.getTitle(), activityId, hostId, userId, dateStatus, date, orderBy);
     }
 
     @PostMapping("/search2")

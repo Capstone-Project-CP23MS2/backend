@@ -24,8 +24,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (\"hostUserId\" = :hostUserId OR :hostUserId IS NULL) " +
                     "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
                     "\"hostUserId\" <> :userId) " +
-                    "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
-                    "ORDER BY \"activityId\"",nativeQuery = true
+                    "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) ",nativeQuery = true
     )
     Page<Activity> findAllActivities(
             Pageable pageable,
@@ -56,8 +55,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (\"hostUserId\" = :hostUserId OR :hostUserId IS NULL) " +
                     "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
                     "\"hostUserId\" <> :userId) " +
-                    "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
-                    "ORDER BY \"activityId\"",nativeQuery = true
+                    "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) ",nativeQuery = true
     )
     Page<Activity> findAllActivitiesNoCategoryFilter(
             Pageable pageable,
@@ -82,8 +80,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
                     "\"hostUserId\" <> :userId) " +
                     "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
-                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false)) " +
-                    "ORDER BY \"activityId\"",nativeQuery = true
+                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false)) ",nativeQuery = true
     )
     List<Activity> findAllListActivities(
             @Param("categoryIds") Set<Integer> categoryIds,
@@ -110,8 +107,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                     "AND (:userId IS NULL OR \"activityId\" IN (SELECT \"activityId\" FROM \"activityParticipants\" WHERE \"userId\" = :userId) AND " +
                     "\"hostUserId\" <> :userId) " +
                     "AND (\"dateTime\"\\:\\:text LIKE concat('%', :date, '%') OR :date IS NULL) " +
-                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false)) " +
-                    "ORDER BY \"activityId\"",nativeQuery = true
+                    "AND ((:lat IS NULL OR :lng IS NULL OR :radius IS NULL) OR ST_DWithin(l.\"point\"\\:\\:geometry, ST_MakePoint(:lng, :lat), :radius, false)) ",nativeQuery = true
     )
     List<Activity> findAllListActivitiesNoCategoryFilter(
             @Param("title") String title,
