@@ -1,6 +1,10 @@
 package sit.cp23ms2.sportconnect.services;
 
+import org.hibernate.exception.SQLGrammarException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.http.ResponseEntity;
 
 import sit.cp23ms2.sportconnect.controllers.SearchTest;
@@ -8,6 +12,7 @@ import sit.cp23ms2.sportconnect.dtos.activity.*;
 import sit.cp23ms2.sportconnect.entities.*;
 import sit.cp23ms2.sportconnect.enums.NotificationType;
 import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
+import sit.cp23ms2.sportconnect.exceptions.type.BadRequestException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.*;
 import org.modelmapper.ModelMapper;
@@ -25,8 +30,10 @@ import org.springframework.web.server.ResponseStatusException;
 import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,9 +70,18 @@ public class ActivityService {
             "title", "Title size must not over 100");
 
     public PageActivityDto getActivity(int pageNum, int pageSize, String sortBy, Set<Integer> categoryIds, String title,
-                                       Integer activityId, Integer hostUserId, Integer userId, String dateStatus, String date) {
-        //Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
-        Pageable pageRequest = PageRequest.of(pageNum, pageSize);
+                                       Integer activityId, Integer hostUserId, Integer userId, String dateStatus, String date, String orderBy) throws BadRequestException {
+        //sort and order
+        Sort sort = null;
+        if(!orderBy.equals("ASC") && !orderBy.equals("DESC") && !orderBy.equals("asc") && !orderBy.equals("desc")) {
+                throw new BadRequestException("parameter orderBy is not these values: ASC, DESC, asc, desc");
+            }
+            if(orderBy.equals("ASC") || orderBy.equals("asc"))
+                sort = JpaSort.unsafe(Sort.Direction.ASC, "\"" + sortBy + "\"");
+            if(orderBy.equals("DESC") || orderBy.equals("desc"))
+                sort = JpaSort.unsafe(Sort.Direction.DESC, "\"" + sortBy + "\"");
+        //query
+        Pageable pageRequest = PageRequest.of(pageNum, pageSize, sort);
         Page<Activity> listActivities;
         if(categoryIds != null) { //check if category filter
             listActivities = repository.findAllActivities(pageRequest, categoryIds, title, activityId, hostUserId, userId, dateStatus, date);
@@ -99,7 +115,7 @@ public class ActivityService {
     //No Pagination
     public List<ActivityDto> getActivityNoPaging(Set<Integer> categoryIds, String title, Integer activityId,
                                                  Integer hostUserId, Integer userId, String dateStatus, String date,
-                                                 Double lat, Double lng, Integer radius) {
+                                                 Double lat, Double lng, Integer radius, String orderBy) throws BadRequestException {
         List<Activity> activities;
         String pointText = new String();
         if(lat != null && lng != null && radius != null) {
@@ -134,6 +150,14 @@ public class ActivityService {
 
             return activityDto;
         }).collect(Collectors.toList());
+        if(!orderBy.equals("ASC") && !orderBy.equals("DESC") && !orderBy.equals("asc") && !orderBy.equals("desc")) {
+            throw new BadRequestException("parameter orderBy is not these values: ASC, DESC, asc, desc");
+        }
+        if(orderBy.equals("ASC") || orderBy.equals("asc"))
+            activityDtos.sort(Comparator.comparing(ActivityDto::getActivityId));
+        if(orderBy.equals("DESC") || orderBy.equals("desc"))
+            activityDtos.sort(Comparator.comparing(ActivityDto::getActivityId).reversed());
+
 
         return activityDtos;
     }
