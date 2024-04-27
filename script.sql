@@ -407,6 +407,7 @@ insert into "user" values
 (nextval('users_sequence'), 'Haaland', '34435DFDFA@email.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 3, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Yuthasart', 'yuthasart51@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 3, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'chic', 'chickenforregis1@gmail.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 4, 'phone','line',now(),now()),
+(nextval('users_sequence'), 'Big', 'poorachad2545@gmail.com', 'user', 'df3DSF989fdghs','Unknown', '2020-09-27', 2, 'phone','line_big',now(),now()),
 (nextval('users_sequence'), 'ph', 'chumphu.phumin@gmail.com', 'admin', 'df3DSF989fdghs','Unknown', '2020-09-27', 4, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Oat', '11@email.com', 'admin', 'A12dbf14hjlk09888ddsafgSDF','Male', '2020-09-27', 5, 'phone','line',now(),now()),
 (nextval('users_sequence'), 'Vinncent', 'z11@email.com', 'user', '45FGFdsf093lfgffflDSAFDSAF43','Female', '2020-09-27', 5, 'phone','line',now(),now()),
