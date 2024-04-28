@@ -81,7 +81,7 @@ public class ActivityParticipantsService {
     }
 
     public ResponseEntity<?> createActivityParticipants(CreateActivityParticipantDto newParticipant, BindingResult result)
-            throws MethodArgumentNotValidException, ApiNotFoundException, ForbiddenException {
+            throws MethodArgumentNotValidException, ApiNotFoundException, ForbiddenException, BadRequestException {
         boolean isThereActivity = activityRepository.existsById(newParticipant.getActivityId());
         boolean isThereUser = userRepository.existsById(newParticipant.getUserId());
 //        if(!isCurrentUserHostTheActivity(newParticipant))
@@ -93,6 +93,13 @@ public class ActivityParticipantsService {
         if(repository.existsByActivity_ActivityIdAndUser_UserId(newParticipant.getActivityId(), newParticipant.getUserId())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("This user has already participated in this Activity!");
         }
+        //Check limit of maximum members
+        if(newParticipant.getRsvpStatus().equals("going")) {
+            System.out.println("true naja");
+            Activity activity = activityRepository.findById(newParticipant.getActivityId()).orElseThrow(() -> new ApiNotFoundException("activity id: " + newParticipant.getActivityId() + " not found"));
+            if(activity.getGoingCounts() >= activity.getNoOfMembers())
+                throw new BadRequestException("You cannot join this activity: This activity has maximum members going");
+        }
         ActivityParticipant activityParticipant = modelMapper.map(newParticipant, ActivityParticipant.class);
 //        ActivityParticipant createdActivityParticipant = repository.insertWithEnum(newParticipant.getUserId()
 //                , newParticipant.getActivityId(), newParticipant.getStatus(), Instant.now());
@@ -101,12 +108,17 @@ public class ActivityParticipantsService {
         return new ResponseEntity<ActivityParticipantsDto>(modelMapper.map(createdActivityParticipant, ActivityParticipantsDto.class), HttpStatus.CREATED);
     }
 
-    public ActivityParticipantsDto update(UpdateActivityParticipantDto updateActivityParticipant, Integer activityId, Integer userId) throws ForbiddenException {
+    public ActivityParticipantsDto update(UpdateActivityParticipantDto updateActivityParticipant, Integer activityId, Integer userId) throws ForbiddenException, BadRequestException {
         ActivityParticipant activityParticipant = repository.findByActivityActivityIdAndUser_UserId(activityId, userId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Participating of Activity ID: " + activityId + " and User ID: " + userId + "does not exist !"));
         if(!isCurrentUserHost(activityParticipant))
             throw new ForbiddenException("You're not allowed to edit this participant");
+        if(updateActivityParticipant.getRsvpStatus().equals("going")) {
+            Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new ApiNotFoundException("activity id: " + activityId + " not found"));
+            if(activity.getGoingCounts() >= activity.getNoOfMembers())
+                throw new BadRequestException("You cannot change your RSVP Status to going: This activity has maximum members going");
+        }
         ActivityParticipant updated = mapActivityParticipant(activityParticipant, updateActivityParticipant);
         return modelMapper.map(repository.saveAndFlush(updated), ActivityParticipantsDto.class);
     }

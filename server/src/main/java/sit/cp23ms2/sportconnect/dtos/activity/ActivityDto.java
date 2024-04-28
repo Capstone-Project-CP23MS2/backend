@@ -25,10 +25,12 @@ public class ActivityDto {
     private Location location;
     private Instant dateTime;
     private Integer duration;
+    private String lineGroupUrl;
     private Instant createdAt;
     private Instant updatedAt;
     private Integer noOfMembers;
     private Integer memberCounts;
+    private Integer goingCounts;
 
     //custom only 3 fields of User in Participants
     private Set<CustomUserActivityDto> users = new HashSet<>();

@@ -271,6 +271,10 @@ public class ActivityService {
                 notificationMessage = notificationMessage + "Members: `" + existingActivity.getNoOfMembers() + "` -> `" + updateActivity.getNoOfMembers() + "`" + "| ".replace('`', '"');
                 existingActivity.setNoOfMembers(updateActivity.getNoOfMembers());
             }
+            if(updateActivity.getLineGroupUrl() != null) { //Set Line Group Url
+                notificationMessage = notificationMessage + "Line: `" + existingActivity.getLineGroupUrl() + "` -> `" + updateActivity.getLineGroupUrl() + "`" + "| ".replace('`', '"');
+                existingActivity.setLineGroupUrl(updateActivity.getLineGroupUrl());
+            }
             activityDto = modelMapper.map(repository.saveAndFlush(existingActivity), ActivityDto.class);
             List<Notification> newNotifications = new ArrayList<>();
             List<User> participants = userRepository.findUsersParticipantsInActivity(id,hostId).orElseThrow(() -> new ApiNotFoundException("User not found!"));

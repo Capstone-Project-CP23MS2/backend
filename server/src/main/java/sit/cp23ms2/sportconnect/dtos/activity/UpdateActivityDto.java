@@ -26,5 +26,6 @@ public class UpdateActivityDto {
     private Integer locationId;
     private Instant dateTime;
     private Integer duration;
+    private String lineGroupUrl;
     private Integer noOfMembers;
 }

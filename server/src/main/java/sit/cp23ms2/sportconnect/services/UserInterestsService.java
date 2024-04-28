@@ -17,6 +17,7 @@ import sit.cp23ms2.sportconnect.entities.ActivityParticipant;
 import sit.cp23ms2.sportconnect.entities.Category;
 import sit.cp23ms2.sportconnect.entities.User;
 import sit.cp23ms2.sportconnect.entities.UserInterest;
+import sit.cp23ms2.sportconnect.exceptions.type.ApiNotFoundException;
 import sit.cp23ms2.sportconnect.exceptions.type.ForbiddenException;
 import sit.cp23ms2.sportconnect.repositories.CategoryRepository;
 import sit.cp23ms2.sportconnect.repositories.UserInterestRepository;
@@ -25,7 +26,9 @@ import sit.cp23ms2.sportconnect.utils.AuthenticationUtil;
 import sit.cp23ms2.sportconnect.utils.ListMapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserInterestsService {
@@ -51,8 +54,11 @@ public class UserInterestsService {
     }
 
     public UserInterest getById(Integer userId, Integer categoryId) {
+//        UserInterest userInterest = repository.findByUser_UserIdAndCategory_CategoryId(userId, categoryId).orElseThrow(() ->
+//                new ResponseStatusException(HttpStatus.NOT_FOUND, "Interest of User ID: " + userId + " and Category ID: "
+//                        + categoryId + " Not Found"));
         UserInterest userInterest = repository.findByUser_UserIdAndCategory_CategoryId(userId, categoryId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Interest of User ID: " + userId + " and Category ID: "
+                new ApiNotFoundException("Interest of User ID: " + userId + " and Category ID: "
                         + categoryId + " Not Found"));
         return userInterest;
     }
@@ -68,31 +74,56 @@ public class UserInterestsService {
         return repository.saveAndFlush(userInterest);
     }
 
+//    public List<InterestDto> createBatch(CreateInterestBatchDto newInterest) throws ForbiddenException {
+//        if(!isCurrentGoingToOwnThisInterest_(newInterest))
+//            throw new ForbiddenException("You're not allowed to create this Interest since you're not this user");
+//        User user = userRepository.findById(newInterest.getUserId()).orElseThrow(() ->
+//                new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: " + newInterest.getUserId() + " Not Found"));
+////        Category category = categoryRepository.findById(newInterest.getCategoryId()).orElseThrow(() ->
+////                new ResponseStatusException(HttpStatus.NOT_FOUND, "Category ID: " + newInterest.getCategoryId() + " Not Found"));
+//        List<UserInterest> userInterests = new ArrayList<>();
+//        for (Integer categoryId : newInterest.getCategoryIds()) {
+//            Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
+//                new ResponseStatusException(HttpStatus.NOT_FOUND, "Category ID: " + categoryId + " Not Found"));
+//            UserInterest interest = new UserInterest();
+//            interest.setUser(user);
+//            interest.setCategory(category);
+//            userInterests.add(interest);
+//        }
+//        repository.saveAllAndFlush(userInterests);
+//        return listMapper.mapList(userInterests, InterestDto.class, modelMapper);
+//    }
+
     public List<InterestDto> createBatch(CreateInterestBatchDto newInterest) throws ForbiddenException {
         if(!isCurrentGoingToOwnThisInterest_(newInterest))
             throw new ForbiddenException("You're not allowed to create this Interest since you're not this user");
         User user = userRepository.findById(newInterest.getUserId()).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: " + newInterest.getUserId() + " Not Found"));
-//        Category category = categoryRepository.findById(newInterest.getCategoryId()).orElseThrow(() ->
-//                new ResponseStatusException(HttpStatus.NOT_FOUND, "Category ID: " + newInterest.getCategoryId() + " Not Found"));
-        List<UserInterest> userInterests = new ArrayList<>();
-        for (Integer categoryId : newInterest.getCategoryIds()) {
+                new ApiNotFoundException("User ID: " + newInterest.getUserId() + " Not Found"));
+
+        Set<Category> userInterests = new HashSet<>();
+        List<UserInterest> userInterestsLists = new ArrayList<>();
+        for(Integer categoryId : newInterest.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Category ID: " + categoryId + " Not Found"));
+                        new ApiNotFoundException("Category ID: " + categoryId + " Not Found"));
+            userInterests.add(category);
             UserInterest interest = new UserInterest();
             interest.setUser(user);
             interest.setCategory(category);
-            userInterests.add(interest);
+            userInterestsLists.add(interest);
         }
-        repository.saveAllAndFlush(userInterests);
-        return listMapper.mapList(userInterests, InterestDto.class, modelMapper);
+        user.setUserInterests(userInterests);
+        userRepository.saveAndFlush(user);
+
+        return listMapper.mapList(userInterestsLists, InterestDto.class, modelMapper);
     }
 
-    public void delete(Integer userId, Integer categoryId) throws ForbiddenException {
-        UserInterest userInterest = getById(userId, categoryId);
-        if(!isCurrentUserHost(userInterest))
-            throw new ForbiddenException("You're not allowed to delete other interest");
-        repository.deleteByUser_UserIdAndCategory_CategoryId(userId, categoryId);
+    public void delete(Integer userId, Set<Integer> categoryIds) throws ForbiddenException {
+        for(Integer categoryId : categoryIds) {
+            UserInterest userInterest = getById(userId, categoryId);
+            if(!isCurrentUserHost(userInterest))
+                throw new ForbiddenException("You're not allowed to delete other interest");
+            repository.deleteByUser_UserIdAndCategory_CategoryId(userId, categoryId);
+        }
     }
 
     private boolean isCurrentUserHost(UserInterest userInterest) {
