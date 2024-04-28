@@ -48,6 +48,9 @@ public class Activity {
     @Column(name = "duration")
     private Integer duration;
 
+    @Column(name = "linegroupurl")
+    private String lineGroupUrl;
+
     @CreationTimestamp
     @Column(name = "createdAt")
     private Instant createdAt;
@@ -61,6 +64,9 @@ public class Activity {
 
     @Column(name = "memberCounts")
     private Integer memberCounts;
+
+    @Column(name = "goingCounts")
+    private Integer goingCounts;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY,

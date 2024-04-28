@@ -58,10 +58,12 @@ CREATE TABLE IF NOT EXISTS public.activities
     "dateTime" timestamp with time zone NOT NULL,
 -- 	"dateEnd" timestamp with time zone NOT NULL,
     duration integer NOT NULL,
+	lineGroupUrl character varying,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
 	"noOfMembers" integer,
-	"memberCounts" integer
+	"memberCounts" integer,
+	"goingCounts" integer
 );
 
 CREATE TYPE gender_user AS ENUM ('Male', 'Female', 'Other', 'NotApplicable', 'Unknown');
@@ -388,6 +390,59 @@ AFTER INSERT OR UPDATE OR DELETE ON "activityParticipants"
 FOR EACH ROW
 EXECUTE FUNCTION update_member_counts();
 
+--------------------------------------------------------------------------------------------------------------------------------------
+-- สร้างฟังก์ชันสำหรับคำนวณค่า memberCounts
+CREATE OR REPLACE FUNCTION initialize_going_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- คำนวณจำนวนสมาชิกที่มีใน activityParticipants สำหรับ activityId นี้
+    NEW."goingCounts" = (
+        SELECT COUNT(*) FROM "activityParticipants"
+        WHERE ("activityId" = NEW."activityId") AND ("rsvpstatus" = 'going')
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- เรียกใช้งานฟังก์ชันเพื่อตั้งค่าเริ่มต้น
+CREATE TRIGGER initialize_going_counts_trigger
+BEFORE INSERT ON "activities"
+FOR EACH ROW
+EXECUTE FUNCTION initialize_going_counts();
+
+-- สร้างฟังก์ชันเพื่อคำนวณจำนวนสมาชิก
+CREATE OR REPLACE FUNCTION update_going_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        -- คำนวณจำนวนสมาชิกที่มีใน activityParticipants สำหรับ activityId นี้ ที่ rsvpStatus เป็น 'going'
+        UPDATE activities
+        SET "goingCounts" = (
+            SELECT COUNT(*) FROM "activityParticipants"
+            WHERE ("activityId" = NEW."activityId") AND ("rsvpstatus" = 'going')
+        )
+        WHERE "activityId" = NEW."activityId";
+    ELSE
+        -- คำนวณจำนวนสมาชิกที่มีใน activityParticipants สำหรับ activityId นี้
+        UPDATE activities
+        SET "goingCounts" = (
+            SELECT COUNT(*) FROM "activityParticipants"
+            WHERE ("activityId" = OLD."activityId") AND ("rsvpstatus" = 'going')
+        )
+        WHERE "activityId" = OLD."activityId";
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- สร้าง Trigger ที่เรียกใช้งาน Trigger Function เมื่อมีการเปลี่ยนแปลงใน activityParticipants
+CREATE TRIGGER update_going_counts_trigger
+AFTER INSERT OR UPDATE OR DELETE ON "activityParticipants"
+FOR EACH ROW
+EXECUTE FUNCTION update_going_counts();
+
 -- INSERT DATA
 insert into "location" values
 (nextval('locations_sequence'), 'Bangkok', 1, 2, point(2,1)),
@@ -445,33 +500,33 @@ insert into "categories" values
 (nextval('categories_sequence'), 'Water Polo', '7 players each team');
 
 insert into "activities" values
-(nextval('activities_sequence'), 1, 1, 'Football Party', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 2, 1, 'Football After Class', 'join use to play football after class', 4, '2024-02-01', 100, now(), now(), 22),
-(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 5, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, now(), now(), 12),
+(nextval('activities_sequence'), 1, 1, 'Football Party', 'Welcome to football party', 3, '2024-02-02', 40, 'urlLine1', now(), now(), 22),
+(nextval('activities_sequence'), 2, 1, 'Football After Class', 'join use to play football after class', 4, '2024-02-01', 100, 'urlLine2', now(), now(), 22),
+(nextval('activities_sequence'), 3, 2, 'Come play Volley!!', 'วอลเลย์กันเถอะ', 5, '2024-02-04', 120, 'urlLine3', now(), now(), 12),
+(nextval('activities_sequence'), 3, 3, 'ใครว่างมาเทนนิสที่สนามหลังมอ', 'สนามหลังมอ เทนนิส 1v1', 3, '2024-02-03', 100, 'urlLine4', now(), now(), 12),
 (nextval('activities_sequence'), 8, 1, 'Title11111Title22222Title33333Title44444Title55555Title66666Title77777Title88888Title99999,Title0000'
  , 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolorem impedit
  ipsam dicta corporis dolore praesentium illum eaque, eligendi porro minima! Asperiores labore voluptas odit inventore vero
  fuga necessitatibus quia magnam quas tempora consequatur nam pariatur deleniti, accusantium ullam eveniet soluta praesentium provident!
  Iste voluptatem fugiat distinctio ullam voluptate reiciendis voluptas aliquid delectus earum quas quos quasi quo, magnam
- consectetur nisi debitis nemo dolor, cupiditat', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 8, 1, 'Football 1', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 2', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 3', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 4', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 5', 'Welcome to football party', 6, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 6', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 7', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 8', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 9', 'Welcome to football party', 7, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 8, 1, 'Football 10', 'Welcome to football party', 3, '2024-02-02', 40, now(), now(), 22),
-(nextval('activities_sequence'), 3, 2, 'Volley 1', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 2', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 3', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 4', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 5', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 6', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12),
-(nextval('activities_sequence'), 3, 2, 'Volley 7', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, now(), now(), 12);
+ consectetur nisi debitis nemo dolor, cupiditat', 6, '2024-02-04', 120, 'urlLine5', now(), now(), 12),
+(nextval('activities_sequence'), 8, 1, 'Football 1', 'Welcome to football party', 6, '2024-02-02', 40, 'urlLine6', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 2', 'Welcome to football party', 6, '2024-02-02', 40, 'urlLine7', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 3', 'Welcome to football party', 6, '2024-02-02', 40, 'urlLine8', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 4', 'Welcome to football party', 6, '2024-02-02', 40, 'urlLine9', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 5', 'Welcome to football party', 6, '2024-02-02', 40, 'urlLine10', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 6', 'Welcome to football party', 7, '2024-02-02', 40, 'urlLine11', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 7', 'Welcome to football party', 7, '2024-02-02', 40, 'urlLine12', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 8', 'Welcome to football party', 7, '2024-02-02', 40, 'urlLine13', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 9', 'Welcome to football party', 7, '2024-02-02', 40, 'urlLine14', now(), now(), 22),
+(nextval('activities_sequence'), 8, 1, 'Football 10', 'Welcome to football party', 3, '2024-02-02', 40, 'urlLine15', now(), now(), 22),
+(nextval('activities_sequence'), 3, 2, 'Volley 1', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, 'urlLine16', now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 2', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, 'urlLine17', now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 3', 'วอลเลย์กันเถอะ', 6, '2024-02-04', 120, 'urlLine18', now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 4', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, 'urlLine19', now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 5', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, 'urlLine20', now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 6', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, 'urlLine21', now(), now(), 12),
+(nextval('activities_sequence'), 3, 2, 'Volley 7', 'วอลเลย์กันเถอะ', 7, '2024-02-04', 120, 'urlLine22', now(), now(), 12);
 
 insert into "activityParticipants" values
 (1, 1, 'not_arrived', 'going' , now()),

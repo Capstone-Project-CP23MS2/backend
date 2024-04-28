@@ -36,6 +36,8 @@ public class CreateActivityDto {
 
     private Integer duration;
 
+    private String lineGroupUrl;
+
     @NotNull(message = "must not be null or blank")
     private Integer noOfMembers;
 

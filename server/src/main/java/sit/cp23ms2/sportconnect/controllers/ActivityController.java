@@ -107,6 +107,7 @@ public class ActivityController {
         Activity createdActivity = activityService.create(newActivity, result);
         ActivityDto dto = modelMapper.map(createdActivity, ActivityDto.class);
         dto.setMemberCounts(1);
+        dto.setGoingCounts(1);
 
         return dto;
     }

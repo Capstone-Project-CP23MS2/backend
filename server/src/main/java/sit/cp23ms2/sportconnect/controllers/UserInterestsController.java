@@ -13,6 +13,7 @@ import sit.cp23ms2.sportconnect.services.UserInterestsService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/interests")
@@ -44,8 +45,8 @@ public class UserInterestsController {
         return userInterestsService.createBatch(createInterestDto);
     }
 
-    @DeleteMapping("/{userId}/{categoryId}")
-    public void delete(@PathVariable Integer userId, @PathVariable Integer categoryId) throws ForbiddenException {
-        userInterestsService.delete(userId, categoryId);
+    @DeleteMapping("/{userId}/{categoryIds}")
+    public void delete(@PathVariable Integer userId, @PathVariable Set<Integer> categoryIds) throws ForbiddenException {
+        userInterestsService.delete(userId, categoryIds);
     }
 }

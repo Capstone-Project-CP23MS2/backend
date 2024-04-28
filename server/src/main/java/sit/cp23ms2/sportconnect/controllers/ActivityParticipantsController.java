@@ -43,13 +43,13 @@ public class ActivityParticipantsController {
 
     @PostMapping
     public ResponseEntity<?> createActivityParticipant(@Valid @ModelAttribute CreateActivityParticipantDto newActivityParticipant, BindingResult result)
-            throws MethodArgumentNotValidException, ForbiddenException {
+            throws MethodArgumentNotValidException, ForbiddenException, BadRequestException {
         return activityParticipantsService.createActivityParticipants(newActivityParticipant, result);
     }
 
     @PatchMapping("/{activityId}_{userId}")
     public ActivityParticipantsDto update(@Valid @RequestBody UpdateActivityParticipantDto updateActivityParticipantDto,
-                                          @PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException {
+                                          @PathVariable Integer activityId, @PathVariable Integer userId) throws ForbiddenException, BadRequestException {
         return activityParticipantsService.update(updateActivityParticipantDto, activityId, userId);
     }
 
